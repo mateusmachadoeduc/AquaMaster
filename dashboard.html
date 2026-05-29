@@ -1084,10 +1084,10 @@ footer {
       <!-- Ciclo de alimentação -->
       <div class="help-card">
         <div class="help-card-title">🔄 Ciclo de alimentação — 7 dias</div>
-        <p>O disco do alimentador tem 7 compartimentos. O servo gira para a posição de cada compartimento uma vez por dia (intervalo de 24h no firmware, 1 min para testes).</p>
+        <p>O disco do alimentador tem 7 compartimentos. O servo gira para a posição de cada compartimento uma vez por dia, no horário configurado em ⚙️ Configurações → <em>Horário de alimentação diária</em> (padrão: 08:00h, fuso UTC-3).</p>
         <p><strong>Sequência:</strong> Dia 1 → Dia 2 → … → Dia 7 → aguarda 10s → retorna ao Home (0°) → entra em modo "Aguardando recarga". Coloque ração nova e clique <em>Iniciar ciclo</em> para recomeçar.</p>
-        <p><strong>Posições padrão (passo 25°):</strong> Dia 1 = 25°, Dia 2 = 50°, …, Dia 7 = 175°. Ajuste individualmente em ⚙️ Configurações → <em>Posição do servo por dia</em>. Ao salvar, as posições são sincronizadas com o ESP32 automaticamente.</p>
-        <div class="help-tip">Para testar o ciclo rapidamente: altere <code>#define INTERVALO_MS 60000</code> no .ino (1 minuto). Para uso real, use <code>86400000</code> (24 horas).</div>
+        <p><strong>Posições padrão:</strong> Dia 1 = 25°, Dia 2 = 50°, Dia 3 = 75°, Dia 4 = 105°, Dia 5 = 135°, Dia 6 = 160°, Dia 7 = 180°. Ajuste individualmente em ⚙️ Configurações → <em>Posição do servo por dia</em>. Ao salvar, as posições são sincronizadas com o ESP32 automaticamente.</p>
+        <div class="help-tip">Para testar: use o botão <strong>Alimentar agora</strong> no card do Alimentador — o ESP32 aciona o servo imediatamente, sem esperar o horário agendado.</div>
       </div>
 
       <!-- Servo motor -->
@@ -1218,6 +1218,17 @@ footer {
     </div>
 
     <div class="fg">
+      <label class="flbl">Horário de alimentação diária</label>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <input type="number" class="finput" id="cfHoraAlim" min="0" max="23" style="width:80px;" placeholder="8">
+        <span style="color:var(--fg2);">h</span>
+        <input type="number" class="finput" id="cfMinAlim"  min="0" max="59" style="width:80px;" placeholder="00">
+        <span style="color:var(--fg2);">min</span>
+      </div>
+      <div class="fhint">O ESP32 aciona o servo neste horário (fuso UTC-3, Brasília). Ao salvar, o novo horário é enviado automaticamente ao ESP32.</div>
+    </div>
+
+    <div class="fg">
       <label class="flbl">Posição do servo por dia (0–180°)</label>
       <div id="diasInputsGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:8px 14px;margin-bottom:6px;"></div>
       <div class="fhint">Configure o ângulo exato de cada compartimento (0–180°). Ao salvar, as posições são enviadas automaticamente ao ESP32.</div>
@@ -1256,16 +1267,18 @@ footer {
 'use strict';
 
 // ── CONFIG (carregado do localStorage) ──────────────────────
-function defaultDias(){ return [25, 50, 75, 100, 125, 150, 175]; }
+function defaultDias(){ return [25, 50, 75, 105, 135, 160, 180]; }
 
 let C = {
-  url:     ls('am_url')     || window.location.origin,
-  phMin:   +ls('am_phMin')  || 6.5,
-  phMax:   +ls('am_phMax')  || 7.5,
-  tMin:    +ls('am_tMin')   || 22,
-  tMax:    +ls('am_tMax')   || 28,
-  refresh: +ls('am_ref')    || 5000,
-  dias:    JSON.parse(ls('am_dias') || 'null') || defaultDias(),
+  url:       ls('am_url')     || window.location.origin,
+  phMin:     +ls('am_phMin')  || 6.5,
+  phMax:     +ls('am_phMax')  || 7.5,
+  tMin:      +ls('am_tMin')   || 22,
+  tMax:      +ls('am_tMax')   || 28,
+  refresh:   +ls('am_ref')    || 5000,
+  dias:      JSON.parse(ls('am_dias') || 'null') || defaultDias(),
+  horaAlim:  +ls('am_hora')   || 8,
+  minAlim:   +ls('am_min')    || 0,
 };
 
 // ── STATE ────────────────────────────────────────────────────
@@ -1830,12 +1843,14 @@ function renderDiasInputs(){
 
 function openSett(){
   Poll.openModal();          // pausa sem afetar flag de pausa manual
-  el('cfUrl').value     = C.url;
-  el('cfPhMin').value   = C.phMin;
-  el('cfPhMax').value   = C.phMax;
-  el('cfTMin').value    = C.tMin;
-  el('cfTMax').value    = C.tMax;
-  el('cfRefresh').value = C.refresh;
+  el('cfUrl').value       = C.url;
+  el('cfPhMin').value     = C.phMin;
+  el('cfPhMax').value     = C.phMax;
+  el('cfTMin').value      = C.tMin;
+  el('cfTMax').value      = C.tMax;
+  el('cfRefresh').value   = C.refresh;
+  el('cfHoraAlim').value  = C.horaAlim;
+  el('cfMinAlim').value   = String(C.minAlim).padStart(2, '0');
   renderDiasInputs();
   el('settModal').classList.add('open');
 }
@@ -1849,7 +1864,9 @@ function saveCfg(){
   C.phMax   = +el('cfPhMax').value  || 7.5;
   C.tMin    = +el('cfTMin').value   || 22;
   C.tMax    = +el('cfTMax').value   || 28;
-  C.refresh = +el('cfRefresh').value || 5000;
+  C.refresh  = +el('cfRefresh').value || 5000;
+  C.horaAlim = Math.min(23, Math.max(0, +el('cfHoraAlim').value || 8));
+  C.minAlim  = Math.min(59, Math.max(0, +el('cfMinAlim').value  || 0));
 
   // Lê os 7 inputs individuais
   C.dias = C.dias.map((def, i) => {
@@ -1864,6 +1881,8 @@ function saveCfg(){
   lss('am_tMax',  C.tMax);
   lss('am_ref',   C.refresh);
   lss('am_dias',  JSON.stringify(C.dias));
+  lss('am_hora',  C.horaAlim);
+  lss('am_min',   C.minAlim);
 
   closeMod();          // → Poll.closeModal() → retoma se não estava pausado
   renderPresets();
@@ -1871,6 +1890,11 @@ function saveCfg(){
   // Envia as 7 posições ao ESP32 em um único comando
   const posCmd = 'set_posicoes_' + C.dias.join('_');
   cmd(posCmd).then(() => toast('✓ Posições enviadas ao ESP32!'));
+
+  // Envia horário de alimentação ao ESP32
+  const hh = String(C.horaAlim).padStart(2,'0');
+  const mm = String(C.minAlim).padStart(2,'0');
+  cmd(`set_horario_${hh}_${mm}`).then(() => toast(`✓ Horário ${hh}:${mm} enviado ao ESP32!`));
 
   Poll.applyInterval(); // aplica novo C.refresh sem resetar flag de pausa
   toast('✓ Configurações salvas!');

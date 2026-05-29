@@ -18,6 +18,7 @@
 #include <OneWire.h>
 #include <DallasTemperature.h>
 #include <ESP32Servo.h>
+#include <time.h>
 
 // ------------------------------------------------------------
 // *** CONFIGURACOES QUE VOCE PRECISA ALTERAR ***
@@ -113,12 +114,14 @@ float slopeAlcalino = 0.0;   // (tensaoNeutro   - tensaoTampao10) / 3.0
 
 // Posicao do servo para cada dia (0 = Home, maximo 180)
 // Dia:        1    2    3    4    5    6    7
-int posicoesDias[NUM_DIAS] = { 25,  50,  75, 100, 125, 150, 175 };
+int posicoesDias[NUM_DIAS] = { 25,  50,  75, 105, 135, 160, 180 };
 
-// Intervalo entre alimentacoes:
-//   86400000 = 24 horas (uso real)
-//   60000    = 1 minuto (para testes)
-#define INTERVALO_MS  86400000UL
+// Horario fixo de alimentacao (NTP — fuso UTC-3, Brasilia)
+// Pode ser alterado pelo dashboard via comando set_horario_HH_MM
+int horaAlimentacao   = 8;   // hora (0-23)
+int minutoAlimentacao = 0;   // minuto (0-59)
+int ultimoDiaAlimentado = -1; // dia-do-ano da ultima alimentacao (evita duplo disparo)
+bool forcarAlimentacao  = false; // flag para "alimentar_agora"
 
 // Tempo que o servo fica parado na posicao do Dia 7
 // antes de retornar ao home (em ms).
@@ -292,6 +295,21 @@ void moverServo(int graus) {
 }
 
 // ============================================================
+// FUNCAO: dispararAlimentacao - executa um passo do ciclo de 7 dias
+void dispararAlimentacao() {
+  int graus = posicaoDoDia(diaAtual);
+  addLog("[ALIM] *** Dia " + String(diaAtual + 1) + " *** → " + String(graus) + " graus");
+  moverServo(graus);
+  contadorAlimentacoes++;
+  diaAtual++;
+  if (diaAtual >= NUM_DIAS) {
+    diaAtual = 0;
+    ciclosCompletos++;
+    retornarHome = true;
+    addLog("[ALIM] Ciclo " + String(ciclosCompletos) + " completo! Dia 7 sendo servido...");
+  }
+}
+
 // FUNCAO: controlarAlimentador - ciclo de 7 dias
 //
 // SEQUENCIA COMPLETA DO CICLO (com GRAUS_POR_DIA=25):
@@ -354,24 +372,32 @@ void controlarAlimentador() {
     return; // fica parado neste estado ate os 10s terminarem
   }
 
-  // 3b. Verifica se chegou a hora da proxima alimentacao
-  if ((agora - tempoUltimaAlimentacao) >= INTERVALO_MS) {
-    tempoUltimaAlimentacao = agora;
+  // 3b. Disparo forcado pelo dashboard ("alimentar_agora")
+  if (forcarAlimentacao) {
+    forcarAlimentacao = false;
+    dispararAlimentacao();
+    return;
+  }
 
-    int graus = posicaoDoDia(diaAtual);
-    addLog("[ALIM] *** Dia " + String(diaAtual + 1) + " *** → " + String(graus) + " graus");
-    moverServo(graus);
-    contadorAlimentacoes++;
-    diaAtual++;
-
-    if (diaAtual >= NUM_DIAS) {
-      // Todos os 7 dias foram alimentados.
-      // Aguarda o servo chegar em 210° (SERVO_TEMPO_MS via ESTADO_MOVENDO),
-      // depois esperandoRetornoHome aguarda 10s, depois vai ao home.
-      diaAtual = 0;
-      ciclosCompletos++;
-      retornarHome = true;
-      addLog("[ALIM] Ciclo " + String(ciclosCompletos) + " completo! Dia 7 sendo servido...");
+  // 3c. Verifica o horario NTP para alimentacao diaria
+  struct tm timeinfo;
+  if (getLocalTime(&timeinfo, 100)) {
+    // NTP disponivel: usa horario configurado
+    int hoje = timeinfo.tm_yday;
+    if (timeinfo.tm_hour == horaAlimentacao &&
+        timeinfo.tm_min  == minutoAlimentacao &&
+        ultimoDiaAlimentado != hoje) {
+      ultimoDiaAlimentado = hoje;
+      addLog("[ALIM] Horario NTP atingido: " + String(horaAlimentacao) + "h" +
+             (minutoAlimentacao < 10 ? "0" : "") + String(minutoAlimentacao));
+      dispararAlimentacao();
+    }
+  } else {
+    // Sem NTP: fallback por intervalo de 24h (millis)
+    if ((agora - tempoUltimaAlimentacao) >= 86400000UL) {
+      tempoUltimaAlimentacao = agora;
+      addLog("[ALIM] Fallback millis (sem NTP)");
+      dispararAlimentacao();
     }
   }
 }
@@ -420,8 +446,7 @@ void executarComando(String cmd) {
         estadoAlimentador = ESTADO_ATIVO;
         addLog("[ALIM] Ciclo iniciado automaticamente pelo alimentar_agora");
       }
-      // Forca a alimentacao imediata
-      tempoUltimaAlimentacao = millis() - INTERVALO_MS;
+      forcarAlimentacao = true;
       addLog("[ALIM] Alimentacao forcada pelo dashboard");
     }
 
@@ -469,6 +494,21 @@ void executarComando(String cmd) {
     addLog("[DPOS] " + String(diasAtualizados) + " posicoes atualizadas:");
     for (int i = 0; i < NUM_DIAS; i++) {
       addLog("  Dia " + String(i + 1) + ": " + String(posicoesDias[i]) + " graus");
+    }
+
+  } else if (cmd.startsWith("set_horario_")) {
+    // Atualiza horario de alimentacao. Formato: "set_horario_08_00"
+    String resto = cmd.substring(12); // remove "set_horario_"
+    int sep = resto.indexOf('_');
+    if (sep != -1) {
+      int novaHora   = constrain(resto.substring(0, sep).toInt(), 0, 23);
+      int novoMinuto = constrain(resto.substring(sep + 1).toInt(), 0, 59);
+      horaAlimentacao   = novaHora;
+      minutoAlimentacao = novoMinuto;
+      addLog("[ALIM] Horario atualizado: " + String(horaAlimentacao) + "h" +
+             (minutoAlimentacao < 10 ? "0" : "") + String(minutoAlimentacao));
+    } else {
+      addLog("[CMD] Formato invalido para set_horario. Use: set_horario_HH_MM");
     }
 
   } else {
@@ -673,6 +713,17 @@ void conectarWiFi() {
 
   if (WiFi.status() == WL_CONNECTED) {
     addLog("[WiFi] Conectado! IP do ESP32: " + WiFi.localIP().toString());
+    // Sincroniza horario via NTP (UTC-3 = Brasilia, sem horario de verao)
+    configTime(-3 * 3600, 0, "pool.ntp.org", "time.nist.gov");
+    addLog("[NTP] Sincronizando horario...");
+    struct tm timeinfo;
+    if (getLocalTime(&timeinfo, 5000)) {
+      char buf[32];
+      strftime(buf, sizeof(buf), "%d/%m/%Y %H:%M:%S", &timeinfo);
+      addLog("[NTP] Horario: " + String(buf));
+    } else {
+      addLog("[NTP] Nao foi possivel sincronizar (sem internet?)");
+    }
   } else {
     addLog("[WiFi] FALHOU - sistema continua funcionando offline");
     addLog("[WiFi] Bomba e alimentador continuam operando normalmente");

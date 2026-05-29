@@ -297,6 +297,11 @@ def validar_comando(cmd):
     if m2:
         return all(0 <= int(m2.group(i)) <= 180 for i in range(1, 8))
 
+    # set_horario_HH_MM — atualiza horario de alimentacao no ESP32
+    m3 = re.fullmatch(r'set_horario_(\d{1,2})_(\d{1,2})', cmd)
+    if m3:
+        return 0 <= int(m3.group(1)) <= 23 and 0 <= int(m3.group(2)) <= 59
+
     return False
 
 @app.route("/comando", methods=["GET", "POST"])
