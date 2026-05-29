@@ -14,7 +14,12 @@ from flask import Flask, request, jsonify, send_from_directory
 import sqlite3
 import os
 import re
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
+
+# Fuso horario de Brasilia (UTC-3, sem horario de verao)
+TZ_BR = timezone(timedelta(hours=-3))
+def agora_br():
+    return datetime.now(TZ_BR).isoformat()
 
 app = Flask(__name__, static_folder=".")
 
@@ -134,7 +139,7 @@ def log_evento(tipo, descricao):
     conn = get_conn()
     conn.execute(
         "INSERT INTO eventos (timestamp, tipo, descricao) VALUES (?, ?, ?)",
-        (datetime.now().isoformat(), tipo, descricao)
+        (agora_br(), tipo, descricao)
     )
     conn.commit()
     conn.close()
@@ -159,7 +164,7 @@ def receber_dados():
             (timestamp, temperatura, ph, bomba, estado_alim, dia_atual, alimentacoes, ciclos, servo_pos)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, (
-        datetime.now().isoformat(),
+        agora_br(),
         data.get("temperatura"),
         data.get("ph"),
         1 if data.get("bomba") else 0,
@@ -232,7 +237,7 @@ def historico():
         # Usa datetime Python para garantir mesmo formato ISO do timestamp salvo.
         # datetime('now','localtime') do SQLite usa espaco; isoformat() usa 'T'.
         # Comparacao de string falharia silenciosamente sem este fix.
-        cutoff = (datetime.now() - timedelta(hours=horas)).isoformat()
+        cutoff = (datetime.now(TZ_BR) - timedelta(hours=horas)).isoformat()
         c.execute("""
             SELECT * FROM leituras
             WHERE timestamp >= ?
