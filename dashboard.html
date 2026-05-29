@@ -1319,6 +1319,14 @@ footer {
 // ── CONFIG (carregado do localStorage) ──────────────────────
 function defaultDias(){ return [25, 50, 75, 105, 135, 160, 180]; }
 
+// Versão das configurações — incremente sempre que mudar valores padrão.
+// Isso força o reset do localStorage para todos que acessarem pela primeira vez.
+const CFG_VERSION = '2';
+if (ls('am_cfg_v') !== CFG_VERSION) {
+  ['am_dias'].forEach(k => localStorage.removeItem(k));
+  lss('am_cfg_v', CFG_VERSION);
+}
+
 let C = {
   url:       ls('am_url')     || window.location.origin,
   phMin:     +ls('am_phMin')  || 6.5,
