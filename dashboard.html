@@ -615,9 +615,14 @@ nav {
 }
 .help-body.open { display: block; }
 
+.help-section-title {
+  font-size: 0.7rem; font-weight: 800; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--text3); border-bottom: 1px solid var(--border); padding-bottom: 8px;
+  margin-top: 24px; margin-bottom: 4px;
+}
 .help-grid {
   display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 16px; margin-top: 20px;
+  gap: 16px; margin-top: 12px;
 }
 .help-card {
   background: var(--bg2); border-radius: var(--radius-sm);
@@ -1029,154 +1034,199 @@ footer {
   <div class="sec">Manual do sistema</div>
 
   <button class="help-toggle" id="helpToggle" onclick="toggleHelp()">
-    <span>📖 &nbsp;Instruções, referência e integração do Aqua Master</span>
+    <span>📖 &nbsp;Sobre o Aqua Master — Guia completo</span>
     <span class="arrow">▼</span>
   </button>
   <div class="help-body" id="helpBody">
+
+    <!-- ═══════════════════════════════════════════════════
+         SEÇÃO 1 — PARA OS ALUNOS
+    ════════════════════════════════════════════════════ -->
+    <div class="help-section-title">🐟 Para os alunos</div>
     <div class="help-grid">
 
-      <!-- Arquitetura -->
       <div class="help-card" style="grid-column: 1 / -1;">
-        <div class="help-card-title">🔗 Arquitetura do sistema</div>
+        <div class="help-card-title">🤔 O que é o Aqua Master?</div>
+        <p>O <strong>Aqua Master</strong> é um sistema inteligente criado para cuidar do nosso peixe Beta de forma automática! Ele usa um pequeno computador chamado <strong>ESP32</strong> — menor que a palma da sua mão — ligado ao aquário, que monitora a água o tempo todo e alimenta o peixe sozinho todos os dias.</p>
+        <p>Este painel mostra tudo que está acontecendo no aquário em tempo real, de qualquer lugar com internet. Você pode acompanhar pelo celular ou pelo computador da escola!</p>
+        <div class="help-tip">💡 Os dados são atualizados a cada 5 segundos — é quase ao vivo!</div>
+      </div>
+
+      <div class="help-card">
+        <div class="help-card-title">🌡️ O que é temperatura da água?</div>
+        <p>O peixe Beta veio de países quentes como a Tailândia. Assim como a gente precisa de uma temperatura certa para ficar bem, ele também precisa! A temperatura ideal fica entre <strong>22°C e 28°C</strong>.</p>
+        <p>Se a água ficar muito fria, o peixe fica lento e pode ficar doente. Se ficar muito quente, o oxigênio na água diminui e ele pode sofrer. O sensor mede a temperatura a cada 5 segundos e avisa se estiver fora do ideal.</p>
+        <div class="help-tip">🔴 Se o card de temperatura aparecer com cor de alerta, avise o professor!</div>
+      </div>
+
+      <div class="help-card">
+        <div class="help-card-title">💧 O que é pH da água?</div>
+        <p>O pH mede se a água está <strong>ácida, neutra ou alcalina</strong> — igual ao que vocês estudam em Ciências! A escala vai de 0 a 14:</p>
+        <p>🔴 <strong>0 a 6</strong> = ácida &nbsp;·&nbsp; ⚪ <strong>7</strong> = neutra &nbsp;·&nbsp; 🔵 <strong>8 a 14</strong> = alcalina</p>
+        <p>O Beta se sente melhor quando o pH fica entre <strong>6,5 e 7,5</strong> — bem pertinho do neutro. Água muito ácida ou muito alcalina pode irritar as escamas e as guelras do peixe.</p>
+        <div class="help-tip">🧪 Curiosidade: a chuva é ligeiramente ácida (pH ~5,6) e o vinagre tem pH ~3!</div>
+      </div>
+
+      <div class="help-card">
+        <div class="help-card-title">⚡ O que é a bomba d'água?</div>
+        <p>A bomba d'água é como o <strong>coração do aquário</strong>! Ela movimenta a água em ciclos — fica ligada por 15 minutos, descansa 5 minutos, e assim por diante.</p>
+        <p>Por que isso é importante? Porque a água em movimento mistura o oxigênio e mantém a temperatura uniforme em todo o aquário. Sem a bomba, partes da água ficariam paradas e com menos oxigênio.</p>
+        <p>O sistema liga e desliga a bomba automaticamente. Mas se precisar, o professor pode controlar manualmente pelos botões do painel.</p>
+      </div>
+
+      <div class="help-card">
+        <div class="help-card-title">🍽️ Como funciona o alimentador automático?</div>
+        <p>O alimentador tem um <strong>disco giratório com 7 compartimentos</strong> — um para cada dia da semana! Todos os dias às 8h da manhã, um pequeno motor (chamado servo) gira o disco e a ração cai para o peixe.</p>
+        <p>Veja a sequência: Dia 1 → Dia 2 → … → Dia 7 → o disco volta para o início → o professor coloca ração nova e reinicia o ciclo.</p>
+        <p>Os bolinhas numeradas no card do Alimentador mostram em qual dia do ciclo estamos agora. Os que ficam brilhando já foram alimentados neste ciclo.</p>
+        <div class="help-tip">🎯 O servo é o mesmo tipo de motor usado em drones e carrinhos de controle remoto!</div>
+      </div>
+
+      <div class="help-card">
+        <div class="help-card-title">📈 O que os gráficos mostram?</div>
+        <p>Os gráficos registram o histórico de temperatura e pH ao longo do tempo. Você pode ver como a água se comportou na última <strong>1 hora, 6 horas ou 24 horas</strong>.</p>
+        <p>Coisas interessantes para observar: a temperatura sobe um pouco quando a sala esquenta durante o dia? O pH muda depois que o peixe come? Tente fazer anotações e comparar os dias!</p>
+        <div class="help-tip">🔬 Isso é ciência de dados na prática — os cientistas fazem exatamente isso para estudar o ambiente!</div>
+      </div>
+
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════
+         SEÇÃO 2 — COMO USAR O PAINEL
+    ════════════════════════════════════════════════════ -->
+    <div class="help-section-title" style="margin-top:28px;">🎮 Como usar o painel</div>
+    <div class="help-grid">
+
+      <div class="help-card">
+        <div class="help-card-title">🔴🟢 Indicador Online / Offline</div>
+        <p>No topo do painel há um indicador que mostra se o ESP32 está conectado e enviando dados.</p>
+        <p><strong>🟢 Online</strong> — tudo funcionando, dados chegando normalmente.</p>
+        <p><strong>🔴 Offline</strong> — o ESP32 não enviou dados nos últimos 30 segundos. Pode ser queda de energia, WiFi instável ou o sistema acordando após um período sem uso.</p>
+        <div class="help-tip">Se ficar offline por muito tempo, verifique se o ESP32 está ligado na tomada.</div>
+      </div>
+
+      <div class="help-card">
+        <div class="help-card-title">⏸ ☀️ ⚙️ Botões da barra superior</div>
+        <p><strong>⏸ Pausar</strong> — pausa a atualização automática do painel. Útil para analisar os gráficos com calma sem os dados ficarem recarregando.</p>
+        <p><strong>☀️ / 🌙 Tema</strong> — alterna entre o tema claro (dia) e escuro (noite). A escolha é salva automaticamente.</p>
+        <p><strong>⚙️ Configurações</strong> — abre o painel de configurações do sistema (faixas ideais, horário de alimentação, posições do servo). Exclusivo para o professor.</p>
+      </div>
+
+      <div class="help-card">
+        <div class="help-card-title">⚡ Controlando a bomba</div>
+        <p>Na seção <em>Controles do Sistema</em>, há três botões para a bomba:</p>
+        <p><strong>Ligar</strong> — força a bomba a ligar agora, entrando em modo manual.</p>
+        <p><strong>Desligar</strong> — força a bomba a desligar, entrando em modo manual.</p>
+        <p><strong>Automático</strong> — devolve o controle ao ciclo automático (15 min ligada / 5 min pausa). Use este botão para retomar o funcionamento normal após usar os modos manuais.</p>
+      </div>
+
+      <div class="help-card">
+        <div class="help-card-title">🍽️ Controlando o alimentador</div>
+        <p><strong>Alimentar agora</strong> — aciona o servo imediatamente, sem esperar o horário agendado. Útil para testes ou se o peixe precisar comer fora do horário.</p>
+        <p><strong>Iniciar ciclo</strong> — use este botão quando terminar de colocar ração nova nos compartimentos do disco. Ele reinicia a contagem do Dia 1.</p>
+        <p>O número do dia atual e a bolinha correspondente no card são atualizados automaticamente assim que a alimentação ocorre.</p>
+      </div>
+
+      <div class="help-card">
+        <div class="help-card-title">📊 Usando os gráficos</div>
+        <p>Clique em <strong>1h</strong>, <strong>6h</strong> ou <strong>24h</strong> para escolher o período exibido nos gráficos de temperatura e pH.</p>
+        <p>Passe o mouse (ou toque) sobre qualquer ponto do gráfico para ver o valor exato e o horário da leitura.</p>
+        <p>As linhas tracejadas indicam as <strong>faixas ideais</strong> — quando a linha do gráfico sair da faixa, significa que algo precisa de atenção.</p>
+        <div class="help-tip">⏸ Pause a atualização antes de analisar os gráficos para os dados não mudarem enquanto você observa.</div>
+      </div>
+
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════
+         SEÇÃO 3 — PARA O PROFESSOR / RESPONSÁVEL
+    ════════════════════════════════════════════════════ -->
+    <div class="help-section-title" style="margin-top:28px;">🔧 Para o professor — Configuração e manutenção</div>
+    <div class="help-grid">
+
+      <div class="help-card">
+        <div class="help-card-title">⚙️ Referência das configurações</div>
+        <div class="help-cmd-row"><span class="help-cmd">URL do Backend</span><span class="help-cmd-desc">Deixe em branco para usar o servidor Render atual. Para uso local (com Python rodando no PC), informe o IP (ex: <code>http://192.168.1.100:5000</code>).</span></div>
+        <div class="help-cmd-row"><span class="help-cmd">Faixa de pH</span><span class="help-cmd-desc">Valores mínimo e máximo ideais para o Beta (padrão: 6,5 – 7,5). Alertas visuais aparecem quando sair desta faixa.</span></div>
+        <div class="help-cmd-row"><span class="help-cmd">Faixa de temperatura</span><span class="help-cmd-desc">Temperatura ideal em °C (padrão: 22 – 28°C). Alerta visual quando fora da faixa.</span></div>
+        <div class="help-cmd-row"><span class="help-cmd">Horário de alimentação</span><span class="help-cmd-desc">Hora e minuto do disparo diário do servo (padrão: 08:00h, fuso UTC-3 Brasília). Ao salvar, o novo horário é enviado ao ESP32 automaticamente.</span></div>
+        <div class="help-cmd-row"><span class="help-cmd">Posição por dia</span><span class="help-cmd-desc">Ângulo exato (0–180°) do servo para cada compartimento do disco. Ao salvar, as 7 posições são enviadas ao ESP32 em um único comando.</span></div>
+        <div class="help-cmd-row"><span class="help-cmd">Intervalo de atualização</span><span class="help-cmd-desc">Frequência de atualização dos cards de status (3s, 5s, 10s ou 30s). O histórico atualiza a cada 4× esse valor (mínimo 60s).</span></div>
+        <div class="help-tip">As configurações são salvas no navegador (localStorage). Ao acessar de outro dispositivo, será necessário configurar novamente.</div>
+      </div>
+
+      <div class="help-card">
+        <div class="help-card-title">📐 Ajuste físico do servo</div>
+        <p>Na seção <em>Servo motor &amp; Alimentador</em>, use o controle de ângulo para posicionar o disco fisicamente e descobrir o ângulo exato de cada compartimento.</p>
+        <p><strong>Como calibrar as posições:</strong> coloque o disco vazio no servo, use o slider ou os botões para girar até o primeiro compartimento ficar na posição de descarga, anote o ângulo e repita para os 7 dias. Depois salve os valores em ⚙️ Configurações.</p>
+        <div class="help-tip">Movimentos manuais pelo painel não alteram o ciclo automático — são apenas para ajuste físico.</div>
+      </div>
+
+      <div class="help-card">
+        <div class="help-card-title">🔄 Recarregando o alimentador</div>
+        <p>Quando o ciclo de 7 dias terminar, o card do Alimentador entrará no estado <em>"Aguardando recarga"</em>. O servo volta automaticamente para a posição Home (0°).</p>
+        <p><strong>Passos para recarregar:</strong></p>
+        <p>① Retire o disco do alimentador com cuidado.</p>
+        <p>② Coloque ração em cada um dos 7 compartimentos.</p>
+        <p>③ Reencaixe o disco na posição Home.</p>
+        <p>④ Clique em <strong>Iniciar ciclo</strong> no painel para começar um novo ciclo do Dia 1.</p>
+      </div>
+
+      <div class="help-card">
+        <div class="help-card-title">🔗 Como o sistema funciona (resumo técnico)</div>
         <div class="help-arch">
-  [ESP32]  ──POST /dados (a cada 5s)──►  [Python Flask + SQLite]
-    ▲                                           │
-    └──── comando (bomba, servo, etc.) ◄────────┘
-                                                │
-  [Dashboard HTML] ──GET /status, /historico───►┘
+[ESP32] ──envia dados a cada 5s──► [Servidor Render]
+   ▲                                      │
+   └──── recebe comandos ◄────────────────┘
+                                          │
+[Este painel] ──lê status e histórico ───►┘
         </div>
-        <p style="margin-top:10px;">O <strong>ESP32</strong> envia os dados dos sensores ao backend Python a cada 5 segundos via HTTP POST. O backend salva no banco SQLite e retorna qualquer comando pendente. O <strong>dashboard</strong> busca o status atual e o histórico independentemente, lendo direto do banco.</p>
-        <p><strong>Arquivos do projeto:</strong> <code>aquamaster_esp32_v3.ino</code> → firmware do ESP32 &nbsp;|&nbsp; <code>aquamaster_api.py</code> → backend Python &nbsp;|&nbsp; <code>dashboard.html</code> → este painel &nbsp;|&nbsp; <code>aquamaster.db</code> → banco SQLite (criado automaticamente)</p>
-      </div>
-
-      <!-- Cards de status -->
-      <div class="help-card">
-        <div class="help-card-title">📊 Cards de status</div>
-        <p><strong>🌡️ Temperatura</strong> — Leitura do sensor DS18B20 (GPIO 4). Mostra a temperatura atual em °C e indica se está dentro da faixa configurada nas Configurações. Valor <code>-99</code> indica sensor desconectado.</p>
-        <p><strong>💧 pH da Água</strong> — Leitura do módulo PH-4502C (GPIO 32). A faixa ideal para Beta é 6.5–7.5. Usa calibração dual-slope com 3 pontos (pH 4, 7 e 10) para maior precisão em toda a faixa. Consulte o card de Calibração para o processo completo.</p>
-        <p><strong>⚡ Bomba d'Água</strong> — Estado atual do relé (GPIO 18). Liga/desliga no ciclo automático (15 min ligada / 5 min pausa por padrão no firmware).</p>
-        <p><strong>🍽️ Alimentador</strong> — Estado do ciclo de 7 dias. <em>Ciclo ativo</em>: aguardando próximo dia. <em>Aguardando recarga</em>: ciclo completo, coloque ração e clique "Iniciar ciclo".</p>
-      </div>
-
-      <!-- Gráficos -->
-      <div class="help-card">
-        <div class="help-card-title">📈 Gráficos e filtros de tempo</div>
-        <p>Os gráficos mostram o histórico de temperatura e pH. Use os botões <strong>1h / 6h / 24h</strong> para escolher a janela de tempo. Clicar num botão busca os dados imediatamente, mesmo com a atualização pausada.</p>
-        <p><strong>Como funciona o downsampling:</strong> com 5s de polling, 24h geram ~17.000 pontos. O sistema reduz automaticamente — 1h mantém todos os pontos, 6h usa 1 a cada 25s, 24h usa 1 a cada 100s — entregando sempre gráficos fluidos.</p>
-        <p>Se a janela selecionada for maior que o período de dados disponíveis, o gráfico mostrará apenas o que existe no banco.</p>
-        <div class="help-tip">⏸ Pause a atualização automática antes de analisar os gráficos para evitar que os dados sejam recarregados enquanto você observa.</div>
-      </div>
-
-      <!-- Controles -->
-      <div class="help-card">
-        <div class="help-card-title">🎛️ Comandos e controles</div>
-        <div class="help-cmd-row"><span class="help-cmd">bomba_ligar</span><span class="help-cmd-desc">Liga a bomba manualmente e entra em modo manual.</span></div>
-        <div class="help-cmd-row"><span class="help-cmd">bomba_desligar</span><span class="help-cmd-desc">Desliga a bomba manualmente.</span></div>
-        <div class="help-cmd-row"><span class="help-cmd">bomba_auto</span><span class="help-cmd-desc">Retorna ao ciclo automático (15 min liga / 5 min pausa).</span></div>
-        <div class="help-cmd-row"><span class="help-cmd">alimentar_agora</span><span class="help-cmd-desc">Força alimentação imediata no dia atual do ciclo.</span></div>
-        <div class="help-cmd-row"><span class="help-cmd">iniciar_ciclo</span><span class="help-cmd-desc">Inicia novo ciclo após recarregar o alimentador.</span></div>
-        <div class="help-cmd-row"><span class="help-cmd">ir_home</span><span class="help-cmd-desc">Move o servo para 0° (posição de espera/recarga).</span></div>
-        <div class="help-cmd-row"><span class="help-cmd">servo_90</span><span class="help-cmd-desc">Move o servo para o ângulo especificado (0–180°).</span></div>
-        <div class="help-cmd-row"><span class="help-cmd">set_posicoes_…</span><span class="help-cmd-desc">Atualiza as 7 posições do ciclo no ESP32 de uma vez.</span></div>
-        <p style="margin-top:8px;font-size:0.71rem;color:var(--text3);">Os comandos ficam pendentes no banco SQLite e são entregues ao ESP32 na próxima requisição POST (em até 5s).</p>
-      </div>
-
-      <!-- Ciclo de alimentação -->
-      <div class="help-card">
-        <div class="help-card-title">🔄 Ciclo de alimentação — 7 dias</div>
-        <p>O disco do alimentador tem 7 compartimentos. O servo gira para a posição de cada compartimento uma vez por dia, no horário configurado em ⚙️ Configurações → <em>Horário de alimentação diária</em> (padrão: 08:00h, fuso UTC-3).</p>
-        <p><strong>Sequência:</strong> Dia 1 → Dia 2 → … → Dia 7 → aguarda 10s → retorna ao Home (0°) → entra em modo "Aguardando recarga". Coloque ração nova e clique <em>Iniciar ciclo</em> para recomeçar.</p>
-        <p><strong>Posições padrão:</strong> Dia 1 = 25°, Dia 2 = 50°, Dia 3 = 75°, Dia 4 = 105°, Dia 5 = 135°, Dia 6 = 160°, Dia 7 = 180°. Ajuste individualmente em ⚙️ Configurações → <em>Posição do servo por dia</em>. Ao salvar, as posições são sincronizadas com o ESP32 automaticamente.</p>
-        <div class="help-tip">Para testar: use o botão <strong>Alimentar agora</strong> no card do Alimentador — o ESP32 aciona o servo imediatamente, sem esperar o horário agendado.</div>
-      </div>
-
-      <!-- Servo motor -->
-      <div class="help-card">
-        <div class="help-card-title">📐 Servo motor — ajuste físico</div>
-        <p>O servo SG90 (GPIO 13) vai de 0° a 180°. O <strong>gauge em arco</strong> mostra a posição atual lida do ESP32. O badge indica se é Home ou qual dia corresponde ao ângulo atual.</p>
-        <p><strong>Slider 0–180°:</strong> arraste e clique "Mover" para uma posição exata.</p>
-        <p><strong>Botões de preset:</strong> Home (0°) e Dia 1–7 com os ângulos configurados. O botão correspondente à posição atual fica destacado.</p>
-        <p><strong>Campo manual:</strong> digite qualquer valor entre 0 e 180° para ajuste fino. Use enquanto posiciona o disco físico do alimentador.</p>
-        <p>Movimentos via dashboard não alteram o estado do ciclo automático — servem apenas para ajuste físico.</p>
-      </div>
-
-      <!-- Agenda -->
-      <div class="help-card">
-        <div class="help-card-title">🕐 Agenda de alimentação</div>
-        <p>Defina horários fixos (ex: 08:00, 12:00) para disparar <code>alimentar_agora</code> automaticamente. A agenda é verificada a cada 10 segundos pelo dashboard e dispara o comando via backend.</p>
-        <p><strong>Limitação importante:</strong> a agenda funciona apenas enquanto a aba do dashboard estiver aberta no navegador. Para agendamento independente do browser, será necessário adicionar um scheduler ao backend Python (fase futura).</p>
-        <p>Use o toggle ativo/pausado em cada horário para habilitar ou desabilitar sem remover o horário.</p>
+        <p style="margin-top:10px;">O ESP32 lê os sensores e envia os dados ao servidor na nuvem (Render) a cada 5 segundos. Quando você clica num botão do painel, o comando fica guardado no servidor e é entregue ao ESP32 na próxima comunicação — em até 5 segundos.</p>
+        <div class="help-tip">O servidor fica em <strong>aquamaster.onrender.com</strong>. Se o ESP32 ficar offline por mais de 15 min, o servidor "dorme" e demora ~30s para responder na primeira requisição seguinte.</div>
       </div>
 
       <!-- Calibração pH -->
       <div class="help-card" style="grid-column: 1 / -1;">
-        <div class="help-card-title">🧪 Calibração do sensor de pH — Processo completo (dual-slope)</div>
+        <div class="help-card-title">🧪 Calibração do sensor de pH — Processo completo</div>
 
-        <p><strong>Por que dual-slope?</strong> O sistema usa 3 soluções tampão (pH 4, 7 e 10) e calcula dois slopes independentes — um para a faixa ácida (4–7) e outro para a alcalina (7–10). Isso elimina o erro acumulado de uma reta única e entrega leituras precisas em toda a faixa de interesse para aquários.</p>
+        <p><strong>Quando calibrar?</strong> A cada 1–2 meses, sempre que as leituras parecerem inconsistentes, ou após trocar a solução KCl de armazenamento do eletrodo.</p>
 
-        <p><strong>Materiais necessários:</strong> solução tampão pH 4.0, pH 7.0 e pH 10.0 (kits de calibração vendidos juntos), água destilada para enxágue entre mergulhos, e um copo pequeno para cada solução.</p>
+        <p><strong>Materiais:</strong> solução tampão pH 4,0 — pH 7,0 — pH 10,0 (kits vendidos juntos), água destilada para enxágue, um copo pequeno para cada solução e o Arduino IDE aberto no computador.</p>
 
-        <p style="font-size:0.75rem;font-weight:700;color:var(--text);margin-top:14px;margin-bottom:6px;">🔒 ANTES DE COMEÇAR — Cuidados com o eletrodo</p>
-        <p>O eletrodo deve ser sempre armazenado <strong>na solução KCl</strong> (o líquido que veio dentro do capuchon rosqueado). Nunca guarde em água destilada — resseca a membrana e inutiliza o sensor. Retire a proteção rosqueada apenas na hora de calibrar ou medir.</p>
+        <p style="font-size:0.75rem;font-weight:700;color:var(--text);margin-top:14px;margin-bottom:6px;">🔒 CUIDADOS COM O ELETRODO</p>
+        <p>Armazene sempre o eletrodo <strong>na solução KCl</strong> (o líquido do capuchon rosqueado). Nunca em água destilada — resseca a membrana. Retire a proteção apenas para calibrar ou medir.</p>
 
-        <p style="font-size:0.75rem;font-weight:700;color:var(--text);margin-top:14px;margin-bottom:6px;">📋 ETAPAS DE CALIBRAÇÃO</p>
+        <p style="font-size:0.75rem;font-weight:700;color:var(--text);margin-top:14px;margin-bottom:6px;">📋 ETAPAS</p>
 
         <div class="help-cmd-row" style="align-items:flex-start;gap:12px;margin-bottom:10px;">
           <span class="help-cmd" style="min-width:60px;text-align:center;padding:6px 10px;">①</span>
-          <span class="help-cmd-desc"><strong>Abra o Arduino IDE → Monitor Serial</strong> com velocidade <code>115200 baud</code>. Certifique-se de que o ESP32 está ligado e conectado ao computador. Selecione <em>Ambos NL &amp; CR</em> (ou <em>Both NL &amp; CR</em>) no rodapé do monitor.</span>
+          <span class="help-cmd-desc"><strong>Arduino IDE → Monitor Serial</strong> a <code>115200 baud</code>. ESP32 ligado e conectado ao PC. Selecione <em>Ambos NL &amp; CR</em> no rodapé.</span>
         </div>
-
         <div class="help-cmd-row" style="align-items:flex-start;gap:12px;margin-bottom:10px;">
           <span class="help-cmd" style="min-width:60px;text-align:center;padding:6px 10px;">②</span>
-          <span class="help-cmd-desc"><strong>Entre no modo calibração:</strong> digite exatamente <code>Calibrar Sensor PH</code> e pressione Enter. O ESP32 começará a exibir a tensão no GPIO 32 a cada 1 segundo. O sistema continua controlando a bomba e o alimentador normalmente.</span>
+          <span class="help-cmd-desc"><strong>Entrar no modo calibração:</strong> digite <code>Calibrar Sensor PH</code> e pressione Enter. O ESP32 exibe a tensão do sensor a cada 1 segundo.</span>
         </div>
-
         <div class="help-cmd-row" style="align-items:flex-start;gap:12px;margin-bottom:10px;">
           <span class="help-cmd" style="min-width:60px;text-align:center;padding:6px 10px;">③</span>
-          <span class="help-cmd-desc"><strong>Calibrar pH 7.0 (ponto neutro):</strong> Enxágue o eletrodo com água destilada e mergulhe na solução pH 7.0. Aguarde a tensão estabilizar (20–30 segundos). Anote o valor de <em>Tensao GPIO32</em> exibido. Em seguida envie: <code>neutro 2.XXXX</code> — substituindo pelo valor anotado.<br>Exemplo: <code>neutro 2.5123</code></span>
+          <span class="help-cmd-desc"><strong>pH 7,0 (ponto neutro):</strong> enxágue o eletrodo com água destilada, mergulhe na solução pH 7,0, aguarde estabilizar (~30s), anote a tensão e envie: <code>neutro 2.XXXX</code></span>
         </div>
-
         <div class="help-cmd-row" style="align-items:flex-start;gap:12px;margin-bottom:10px;">
           <span class="help-cmd" style="min-width:60px;text-align:center;padding:6px 10px;">④</span>
-          <span class="help-cmd-desc"><strong>Calibrar pH 4.0 (tampão ácido):</strong> Enxágue o eletrodo com água destilada, mergulhe na solução pH 4.0 e aguarde estabilizar. Anote a tensão e envie: <code>acido X.XXXX</code><br>Exemplo: <code>acido 3.2950</code><br>O firmware recalcula o slopeÁcido automaticamente e exibe o novo valor.</span>
+          <span class="help-cmd-desc"><strong>pH 4,0 (ácido):</strong> enxágue, mergulhe na solução pH 4,0, aguarde estabilizar, anote e envie: <code>acido X.XXXX</code></span>
         </div>
-
         <div class="help-cmd-row" style="align-items:flex-start;gap:12px;margin-bottom:10px;">
           <span class="help-cmd" style="min-width:60px;text-align:center;padding:6px 10px;">⑤</span>
-          <span class="help-cmd-desc"><strong>Calibrar pH 10.0 (tampão alcalino):</strong> Enxágue o eletrodo com água destilada, mergulhe na solução pH 10.0 e aguarde estabilizar. Anote a tensão e envie: <code>alcalino X.XXXX</code><br>Exemplo: <code>alcalino 2.0070</code><br>O firmware recalcula o slopeAlcalino automaticamente.</span>
+          <span class="help-cmd-desc"><strong>pH 10,0 (alcalino):</strong> enxágue, mergulhe na solução pH 10,0, aguarde estabilizar, anote e envie: <code>alcalino X.XXXX</code></span>
         </div>
-
         <div class="help-cmd-row" style="align-items:flex-start;gap:12px;margin-bottom:10px;">
           <span class="help-cmd" style="min-width:60px;text-align:center;padding:6px 10px;">⑥</span>
-          <span class="help-cmd-desc"><strong>Verificação e ajuste fino (opcional):</strong> Mergulhe o eletrodo em uma das soluções tampão novamente e veja se o pH calculado confere. Se houver uma diferença pequena constante em toda a faixa, use <code>offset X.XX</code> para corrigir.<br>Exemplo: sensor lendo 6.85 com eletrodo no pH 7.0 → <code>offset 0.15</code></span>
+          <span class="help-cmd-desc"><strong>Ajuste fino (opcional):</strong> se o sensor mostrar uma diferença constante, use <code>offset X.XX</code> para corrigir. Ex: lendo 6,85 no pH 7,0 → <code>offset 0.15</code></span>
         </div>
-
         <div class="help-cmd-row" style="align-items:flex-start;gap:12px;margin-bottom:10px;">
           <span class="help-cmd" style="min-width:60px;text-align:center;padding:6px 10px;">⑦</span>
-          <span class="help-cmd-desc"><strong>Finalizar e persistir os valores:</strong> Digite <code>Concluido</code> e pressione Enter. O ESP32 imprimirá todos os valores finais:<br><code>tensaoNeutro</code>, <code>tensaoTampao4</code>, <code>tensaoTampao10</code>, <code>PH_OFFSET</code>, <code>slopeAcido</code>, <code>slopeAlcalino</code>.<br><strong>Copie esses valores para as constantes correspondentes no topo do .ino</strong> e regrave o firmware — assim a calibração persiste após qualquer reinicialização.</span>
+          <span class="help-cmd-desc"><strong>Finalizar:</strong> digite <code>Concluido</code>. O ESP32 imprimirá todos os valores finais. <strong>Copie-os para as constantes no topo do arquivo .ino e regrave</strong> — assim a calibração persiste após qualquer reinicialização.</span>
         </div>
 
-        <p style="font-size:0.75rem;font-weight:700;color:var(--text);margin-top:14px;margin-bottom:6px;">⌨️ REFERÊNCIA DE COMANDOS SERIAL (115200 baud)</p>
-        <div class="help-cmd-row"><span class="help-cmd">Calibrar Sensor PH</span><span class="help-cmd-desc">Entra no modo calibração — leituras a cada 1s, bomba e alimentador continuam ativos.</span></div>
-        <div class="help-cmd-row"><span class="help-cmd">neutro X.XXXX</span><span class="help-cmd-desc">Define a tensão medida na solução pH 7.0. Recalcula ambos os slopes automaticamente.</span></div>
-        <div class="help-cmd-row"><span class="help-cmd">acido X.XXXX</span><span class="help-cmd-desc">Define a tensão medida na solução pH 4.0. Recalcula o slopeÁcido.</span></div>
-        <div class="help-cmd-row"><span class="help-cmd">alcalino X.XXXX</span><span class="help-cmd-desc">Define a tensão medida na solução pH 10.0. Recalcula o slopeAlcalino.</span></div>
-        <div class="help-cmd-row"><span class="help-cmd">offset X.XX</span><span class="help-cmd-desc">Aplica um ajuste fino constante ao pH calculado (positivo ou negativo). Use quando todos os pontos estão deslocados por um valor fixo.</span></div>
-        <div class="help-cmd-row"><span class="help-cmd">Concluido</span><span class="help-cmd-desc">Sai do modo calibração, imprime todos os valores finais e retoma operação normal.</span></div>
-
-        <div class="help-tip" style="margin-top:14px;">💡 <strong>Os valores não persistem no ESP32 após desligar</strong> — a memória SRAM é apagada no reset. Sempre copie os valores exibidos pelo comando <code>Concluido</code> para as constantes <code>tensaoNeutro</code>, <code>tensaoTampao4</code> e <code>tensaoTampao10</code> no início do .ino e regrave.</div>
-        <div class="help-tip">🔁 <strong>Quando recalibrar?</strong> O eletrodo de vidro envelhece — recalibre a cada 1–2 meses, sempre que trocar a solução KCl de armazenamento, ou se as leituras parecerem inconsistentes.</div>
-      </div>
-
-      <!-- Configurações -->
-      <div class="help-card">
-        <div class="help-card-title">⚙️ Referência das configurações</div>
-        <div class="help-cmd-row"><span class="help-cmd">URL do Backend</span><span class="help-cmd-desc">IP local do PC (ex: <code>http://192.168.1.100:5000</code>) ou URL do ngrok para acesso externo.</span></div>
-        <div class="help-cmd-row"><span class="help-cmd">Faixa de pH</span><span class="help-cmd-desc">Valores mínimo e máximo ideais. Alertas aparecem fora dessa faixa.</span></div>
-        <div class="help-cmd-row"><span class="help-cmd">Faixa de temp.</span><span class="help-cmd-desc">Temperatura ideal em °C. Alerta visual quando fora da faixa.</span></div>
-        <div class="help-cmd-row"><span class="help-cmd">Posição por dia</span><span class="help-cmd-desc">Ângulo exato (0–180°) de cada compartimento do disco. Salvar envia <code>set_posicoes_…</code> ao ESP32.</span></div>
-        <div class="help-cmd-row"><span class="help-cmd">Intervalo de atualiz.</span><span class="help-cmd-desc">Frequência de atualização dos cards de status (3s, 5s, 10s ou 30s). O histórico atualiza a cada 4× esse valor (mín. 60s).</span></div>
-        <div class="help-tip">⏸ O botão de pausa na barra superior suspende toda atualização automática. Abrindo ⚙️ Configurações, a atualização é suspensa automaticamente e retoma ao fechar — sem afetar o estado do botão ⏸.</div>
+        <div class="help-tip" style="margin-top:10px;">💡 Os valores de calibração são perdidos se o ESP32 for reiniciado sem regravar o firmware. Sempre salve copiando para o .ino.</div>
       </div>
 
     </div><!-- /help-grid -->
