@@ -1,0 +1,1981 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aqua Master — Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+/* ============================================================
+   CSS VARIABLES — Tema Escuro (padrão)
+   ============================================================ */
+:root {
+  --bg:          #0d1821;
+  --bg2:         #132030;
+  --card:        #192b3d;
+  --card2:       #1e3348;
+  --border:      rgba(255,255,255,0.07);
+  --border2:     rgba(255,255,255,0.12);
+  --text:        #ddeeff;
+  --text2:       #6e94ad;
+  --text3:       #4a6a80;
+  --accent:      #00d4aa;
+  --accent-dim:  rgba(0,212,170,0.12);
+  --blue:        #4a9edd;
+  --blue-dim:    rgba(74,158,221,0.12);
+  --orange:      #f39c12;
+  --orange-dim:  rgba(243,156,18,0.12);
+  --purple:      #9b6ddf;
+  --purple-dim:  rgba(155,109,223,0.12);
+  --red:         #e05c5c;
+  --red-dim:     rgba(224,92,92,0.12);
+  --green:       #2ecc8a;
+  --gray-dim:    rgba(127,140,141,0.12);
+  --shadow:      0 4px 24px rgba(0,0,0,0.4);
+  --shadow2:     0 8px 40px rgba(0,0,0,0.5);
+  --radius:      16px;
+  --radius-sm:   10px;
+  --radius-xs:   7px;
+  --ease:        0.22s ease;
+}
+
+/* ============================================================
+   CSS VARIABLES — Tema Claro
+   ============================================================ */
+[data-theme="light"] {
+  --bg:          #f0f5fa;
+  --bg2:         #e4ecf4;
+  --card:        #ffffff;
+  --card2:       #f7fbff;
+  --border:      rgba(0,0,0,0.07);
+  --border2:     rgba(0,0,0,0.14);
+  --text:        #1a2d3f;
+  --text2:       #527a94;
+  --text3:       #89a8bb;
+  --accent:      #009e82;
+  --accent-dim:  rgba(0,158,130,0.1);
+  --blue:        #2980b9;
+  --blue-dim:    rgba(41,128,185,0.1);
+  --orange:      #e08a00;
+  --orange-dim:  rgba(224,138,0,0.1);
+  --purple:      #7c52c8;
+  --purple-dim:  rgba(124,82,200,0.1);
+  --red:         #c0392b;
+  --red-dim:     rgba(192,57,43,0.1);
+  --green:       #1aaa6a;
+  --gray-dim:    rgba(100,100,100,0.1);
+  --shadow:      0 4px 20px rgba(0,0,0,0.08);
+  --shadow2:     0 8px 36px rgba(0,0,0,0.14);
+}
+
+/* ============================================================
+   RESET & BASE
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; font-size: 16px; }
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  transition: background var(--ease), color var(--ease);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+button { font-family: inherit; }
+input, select { font-family: inherit; }
+
+/* ============================================================
+   LAYOUT
+   ============================================================ */
+.wrap { max-width: 1240px; margin: 0 auto; padding: 0 20px; }
+
+/* ============================================================
+   NAVBAR
+   ============================================================ */
+nav {
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  position: sticky; top: 0; z-index: 100;
+  transition: background var(--ease);
+}
+.nav-inner {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 20px; max-width: 1240px; margin: 0 auto; gap: 12px;
+}
+.nav-logo {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 1.05rem; font-weight: 700; color: var(--accent);
+  letter-spacing: 0.3px; white-space: nowrap; text-decoration: none;
+}
+.nav-logo svg { width: 30px; height: 30px; flex-shrink: 0; }
+.nav-center {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 0.73rem; color: var(--text2);
+  flex-wrap: wrap;
+}
+.conn-badge {
+  display: flex; align-items: center; gap: 5px;
+  padding: 4px 11px; border-radius: 20px;
+  font-weight: 600; font-size: 0.72rem;
+  background: var(--gray-dim); color: var(--text2);
+  border: 1px solid var(--border); transition: all var(--ease);
+}
+.conn-badge .dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--text3); transition: all 0.4s ease;
+}
+.conn-badge.online  { background: var(--accent-dim); color: var(--accent); border-color: rgba(0,212,170,0.2); }
+.conn-badge.online .dot  { background: var(--accent); box-shadow: 0 0 6px var(--accent); animation: blink 2s ease-in-out infinite; }
+.conn-badge.offline { background: var(--red-dim); color: var(--red); border-color: rgba(224,92,92,0.2); }
+.conn-badge.offline .dot { background: var(--red); }
+.conn-badge.paused  { background: var(--orange-dim); color: var(--orange); border-color: rgba(243,156,18,0.2); }
+.conn-badge.paused .dot { background: var(--orange); animation: none; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.5} }
+
+.upd-label { font-size: 0.7rem; color: var(--text3); white-space: nowrap; }
+.nav-right { display: flex; align-items: center; gap: 8px; }
+.nav-btn {
+  width: 36px; height: 36px; border-radius: var(--radius-xs);
+  border: 1px solid var(--border); background: var(--card);
+  color: var(--text2); cursor: pointer; display: flex; align-items: center; justify-content: center;
+  font-size: 1rem; transition: all var(--ease); flex-shrink: 0;
+}
+.nav-btn:hover { background: var(--card2); color: var(--text); border-color: var(--accent); }
+
+/* ============================================================
+   ALERT BAR
+   ============================================================ */
+.alert-bar {
+  margin: 16px 20px 0;
+  max-width: 1240px;
+  margin-left: auto; margin-right: auto;
+  background: var(--red-dim); border: 1px solid rgba(224,92,92,0.25);
+  border-radius: var(--radius-sm); padding: 10px 16px;
+  display: flex; align-items: center; gap: 8px;
+  font-size: 0.8rem; color: var(--red); font-weight: 500;
+  animation: slideIn 0.3s ease;
+}
+.alert-bar.hidden { display: none; }
+@keyframes slideIn { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:translateY(0)} }
+
+/* ============================================================
+   SECTION LABEL
+   ============================================================ */
+.sec {
+  font-size: 0.65rem; font-weight: 700; letter-spacing: 2.5px;
+  text-transform: uppercase; color: var(--text3);
+  margin: 28px 0 12px; display: flex; align-items: center; gap: 10px;
+}
+.sec::after { content:''; flex:1; height:1px; background:var(--border); }
+
+/* ============================================================
+   STATUS CARDS
+   ============================================================ */
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px; margin-top: 20px;
+}
+.card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 20px 22px;
+  box-shadow: var(--shadow); position: relative; overflow: hidden;
+  transition: transform var(--ease), box-shadow var(--ease);
+}
+.card:hover { transform: translateY(-2px); box-shadow: var(--shadow2); }
+.card-top-bar {
+  position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  border-radius: var(--radius) var(--radius) 0 0;
+}
+.card-lbl {
+  font-size: 0.65rem; font-weight: 700; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--text2); margin-bottom: 13px;
+}
+.card-val {
+  font-size: 2.8rem; font-weight: 200; line-height: 1;
+  letter-spacing: -1px; margin-bottom: 6px;
+  transition: opacity 0.3s ease;
+}
+.card-unit { font-size: 1.2rem; font-weight: 300; margin-left: 2px; opacity: 0.7; }
+.card-sub  { font-size: 0.73rem; color: var(--text2); margin-top: 4px; }
+.badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 10px; border-radius: 20px;
+  font-size: 0.68rem; font-weight: 600; margin-top: 10px;
+  border: 1px solid currentColor;
+}
+
+/* Pump card */
+.pump-row { display: flex; align-items: center; gap: 10px; margin: 4px 0 4px; }
+.pump-dot {
+  width: 11px; height: 11px; border-radius: 50%;
+  transition: all 0.4s ease; flex-shrink: 0;
+  background: var(--text3);
+}
+.pump-dot.on { background: var(--blue); box-shadow: 0 0 10px var(--blue); animation: blink 1.5s ease-in-out infinite; }
+.pump-text { font-size: 1.8rem; font-weight: 300; }
+
+/* Feeder card mini days */
+.mini-days { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 10px; }
+.mini-d {
+  width: 21px; height: 21px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.6rem; font-weight: 700; border: 1.5px solid var(--border2);
+  color: var(--text3); transition: all var(--ease);
+}
+.mini-d.done    { background: var(--green); border-color: var(--green); color: #fff; }
+.mini-d.current { background: var(--purple-dim); border-color: var(--purple); color: var(--purple); animation: glow-p 1.8s ease-in-out infinite; }
+@keyframes glow-p { 0%,100%{box-shadow:0 0 0 0 rgba(155,109,223,.3)} 50%{box-shadow:0 0 0 5px rgba(155,109,223,0)} }
+
+/* ============================================================
+   CHARTS
+   ============================================================ */
+.charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media(max-width:720px){ .charts-grid{ grid-template-columns:1fr; } }
+.chart-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow);
+}
+.chart-head {
+  display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;
+}
+.chart-lbl {
+  font-size: 0.68rem; font-weight: 700; letter-spacing: 1.5px;
+  text-transform: uppercase; color: var(--text2);
+}
+.filters { display: flex; gap: 5px; }
+.filt {
+  padding: 4px 10px; border-radius: var(--radius-xs);
+  border: 1px solid var(--border); background: transparent;
+  color: var(--text2); font-size: 0.68rem; font-weight: 600;
+  cursor: pointer; transition: all var(--ease);
+}
+.filt:hover { border-color: var(--accent); color: var(--accent); }
+.filt.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+.chart-box { position: relative; height: 200px; }
+
+/* ============================================================
+   CONTROLS GRID
+   ============================================================ */
+.controls-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media(max-width:640px){ .controls-grid{ grid-template-columns:1fr; } }
+
+.ctrl-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 20px 22px; box-shadow: var(--shadow);
+}
+.ctrl-lbl {
+  font-size: 0.65rem; font-weight: 700; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--text2); margin-bottom: 16px;
+}
+.ctrl-row {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  padding: 11px 0; border-bottom: 1px solid var(--border);
+}
+.ctrl-row:last-child { border-bottom: none; padding-bottom: 0; }
+.ctrl-row-lbl { font-size: 0.77rem; color: var(--text2); min-width: 82px; font-weight: 500; }
+
+/* Buttons */
+.btn-row { display: flex; gap: 7px; flex-wrap: wrap; }
+.btn {
+  padding: 9px 16px; border-radius: var(--radius-xs);
+  border: 1.5px solid; font-size: 0.77rem; font-weight: 600;
+  cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
+  transition: all var(--ease); letter-spacing: 0.2px; white-space: nowrap;
+  background: transparent;
+}
+.btn:active { transform: scale(0.96); }
+.btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none !important; }
+
+.btn-teal   { border-color: var(--accent); color: var(--accent); }
+.btn-blue   { border-color: var(--blue);   color: var(--blue); }
+.btn-orange { border-color: var(--orange); color: var(--orange); }
+.btn-purple { border-color: var(--purple); color: var(--purple); }
+.btn-red    { border-color: var(--red);    color: var(--red); }
+.btn-gray   { border-color: var(--border2); color: var(--text2); }
+
+.btn-teal:hover   { background: var(--accent); color: #fff; }
+.btn-blue:hover   { background: var(--blue);   color: #fff; }
+.btn-orange:hover { background: var(--orange); color: #fff; }
+.btn-purple:hover { background: var(--purple); color: #fff; }
+.btn-red:hover    { background: var(--red);    color: #fff; }
+.btn-gray:hover   { background: var(--border2); color: var(--text); }
+
+.btn-loading { position: relative; pointer-events: none; opacity: 0.6; }
+.btn-loading::after {
+  content: ''; position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+  width: 11px; height: 11px; border-radius: 50%;
+  border: 2px solid currentColor; border-top-color: transparent;
+  animation: spin 0.6s linear infinite;
+}
+@keyframes spin { to{ transform: translateY(-50%) rotate(360deg); } }
+
+.mode-chip {
+  padding: 3px 10px; border-radius: 20px; font-size: 0.68rem; font-weight: 700;
+  border: 1px solid var(--accent); color: var(--accent); background: var(--accent-dim);
+  transition: all var(--ease);
+}
+.mode-chip.manual { border-color: var(--orange); color: var(--orange); background: var(--orange-dim); }
+
+/* ============================================================
+   FEEDER CYCLE CARD
+   ============================================================ */
+.cycle-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 22px; box-shadow: var(--shadow);
+}
+.cycle-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.cycle-top-lbl { font-size: 0.73rem; color: var(--text2); }
+.cycle-pct { font-size: 0.78rem; font-weight: 700; color: var(--purple); }
+.progress-bar { height: 5px; background: var(--border2); border-radius: 5px; margin-bottom: 18px; }
+.progress-fill {
+  height: 100%; border-radius: 5px;
+  background: linear-gradient(90deg, var(--purple), var(--accent));
+  transition: width 0.6s cubic-bezier(.4,0,.2,1);
+}
+.days-row { display: flex; gap: 8px; justify-content: space-between; margin-bottom: 20px; }
+.day-c {
+  flex: 1; aspect-ratio: 1; border-radius: 50%; max-width: 60px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  border: 2px solid var(--border2); color: var(--text3);
+  transition: all var(--ease); font-size: 0.65rem;
+}
+.day-c .n { font-size: 0.9rem; font-weight: 700; }
+.day-c .d { font-size: 0.55rem; opacity: 0.7; margin-top: 2px; }
+.day-c.done    { background: var(--green); border-color: var(--green); color: #fff; }
+.day-c.current {
+  background: var(--purple-dim); border-color: var(--purple); color: var(--purple);
+  box-shadow: 0 0 0 3px rgba(155,109,223,0.15);
+  animation: glow-p 1.8s ease-in-out infinite;
+}
+
+.cycle-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+.cstat {
+  background: var(--bg2); border-radius: var(--radius-sm); padding: 14px 10px; text-align: center;
+}
+.cstat-val { font-size: 1.6rem; font-weight: 200; color: var(--accent); }
+.cstat-lbl { font-size: 0.62rem; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text2); margin-top: 3px; }
+
+/* ============================================================
+   SCHEDULE
+   ============================================================ */
+.sched-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 22px; box-shadow: var(--shadow);
+}
+.sched-note {
+  font-size: 0.75rem; color: var(--text2); line-height: 1.6;
+  background: var(--orange-dim); border: 1px solid rgba(243,156,18,0.2);
+  border-radius: var(--radius-xs); padding: 10px 14px; margin: 12px 0 16px;
+}
+.sched-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+.sched-empty { text-align:center; color: var(--text3); font-size:0.8rem; padding:20px; }
+.sched-item {
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--bg2); border-radius: var(--radius-sm);
+  padding: 12px 16px; border: 1px solid var(--border);
+  transition: border-color var(--ease);
+}
+.sched-item:hover { border-color: var(--accent); }
+.sched-time { font-size: 1.15rem; font-weight: 300; font-family: monospace; letter-spacing: 2px; color: var(--accent); }
+.sched-desc { font-size: 0.71rem; color: var(--text2); margin-top: 2px; }
+.sched-right { display: flex; align-items: center; gap: 8px; }
+
+/* Toggle switch */
+.tog {
+  width: 38px; height: 20px; border-radius: 12px;
+  border: none; cursor: pointer; background: var(--border2);
+  position: relative; transition: background var(--ease); flex-shrink: 0;
+}
+.tog::after {
+  content: ''; position: absolute;
+  width: 14px; height: 14px; border-radius: 50%;
+  background: #fff; top: 3px; left: 3px; transition: all var(--ease);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+.tog.on { background: var(--accent); }
+.tog.on::after { transform: translateX(18px); }
+
+.sched-add {
+  display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 4px;
+}
+.field {
+  background: var(--bg2); border: 1px solid var(--border); color: var(--text);
+  border-radius: var(--radius-xs); padding: 9px 13px; font-size: 0.82rem;
+  outline: none; transition: border-color var(--ease);
+}
+.field:focus { border-color: var(--accent); }
+.field-time { font-family: monospace; width: 120px; }
+.field-label { flex: 1; min-width: 160px; }
+
+/* ============================================================
+   SETTINGS MODAL
+   ============================================================ */
+.overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.55);
+  z-index: 200; display: flex; align-items: center; justify-content: center;
+  padding: 20px; opacity: 0; pointer-events: none;
+  transition: opacity var(--ease); backdrop-filter: blur(5px);
+}
+.overlay.open { opacity: 1; pointer-events: all; }
+.modal {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 26px;
+  max-width: 450px; width: 100%; box-shadow: var(--shadow2);
+  transform: scale(0.94) translateY(12px); transition: transform var(--ease);
+}
+.overlay.open .modal { transform: scale(1) translateY(0); }
+.modal-head {
+  display: flex; align-items: center; justify-content: space-between; margin-bottom: 22px;
+}
+.modal-title { font-size: 0.95rem; font-weight: 600; }
+.modal-x { background: none; border: none; color: var(--text2); cursor: pointer; font-size: 1.2rem; line-height: 1; padding: 4px 6px; border-radius: 6px; }
+.modal-x:hover { color: var(--text); background: var(--border); }
+
+.fg { margin-bottom: 14px; }
+.flbl { font-size: 0.67rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text2); display: block; margin-bottom: 6px; }
+.finput {
+  width: 100%; background: var(--bg2); border: 1px solid var(--border); color: var(--text);
+  border-radius: var(--radius-xs); padding: 9px 13px; font-size: 0.82rem;
+  outline: none; transition: border-color var(--ease);
+}
+.finput:focus { border-color: var(--accent); }
+.fhint { font-size: 0.68rem; color: var(--text3); margin-top: 5px; line-height: 1.5; }
+.f2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.modal-foot { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; }
+
+/* ============================================================
+   TOASTS
+   ============================================================ */
+.toasts {
+  position: fixed; bottom: 22px; right: 22px; z-index: 300;
+  display: flex; flex-direction: column; gap: 8px; align-items: flex-end;
+}
+.toast {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 11px 16px;
+  box-shadow: var(--shadow2); font-size: 0.8rem; max-width: 300px;
+  display: flex; align-items: center; gap: 10px;
+  animation: tin 0.28s cubic-bezier(.4,0,.2,1);
+  border-left: 3px solid var(--accent);
+}
+.toast.err  { border-left-color: var(--red); }
+.toast.warn { border-left-color: var(--orange); }
+@keyframes tin  { from{opacity:0;transform:translateX(16px)} to{opacity:1;transform:translateX(0)} }
+@keyframes tout { to{opacity:0;transform:translateX(16px)} }
+
+/* ============================================================
+   SERVO / FEEDER DETAIL SECTION
+   ============================================================ */
+.servo-grid {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 12px;
+}
+@media(max-width:760px){ .servo-grid{ grid-template-columns: 1fr; } }
+
+/* Arc gauge card */
+.servo-gauge-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 22px; box-shadow: var(--shadow);
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+}
+.servo-gauge-card .ctrl-lbl { align-self: flex-start; }
+
+.arc-wrap {
+  position: relative; width: 180px; height: 100px;
+  margin: 8px auto 4px;
+}
+.arc-wrap svg { width: 180px; height: 100px; overflow: visible; }
+#arcTrack { stroke: var(--border2); }
+#arcFill  { stroke: var(--purple); transition: stroke-dashoffset 0.55s cubic-bezier(.4,0,.2,1); }
+
+.arc-label {
+  position: absolute; bottom: -2px; left: 50%; transform: translateX(-50%);
+  text-align: center;
+}
+.arc-deg  { font-size: 2.2rem; font-weight: 200; color: var(--purple); line-height: 1; }
+.arc-unit { font-size: 0.75rem; color: var(--text2); }
+
+.servo-day-badge {
+  background: var(--purple-dim); border: 1px solid var(--purple);
+  border-radius: 20px; padding: 4px 14px;
+  font-size: 0.72rem; font-weight: 700; color: var(--purple);
+  letter-spacing: 0.5px;
+}
+
+.servo-info-row {
+  display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; width: 100%;
+}
+.servo-stat {
+  flex: 1; min-width: 60px;
+  background: var(--bg2); border-radius: var(--radius-xs);
+  padding: 8px 6px; text-align: center;
+}
+.servo-stat-val { font-size: 1.15rem; font-weight: 300; color: var(--accent); }
+.servo-stat-lbl { font-size: 0.58rem; text-transform: uppercase; letter-spacing: 1.2px; color: var(--text3); margin-top: 2px; }
+
+/* Control panel card */
+.servo-ctrl-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 22px; box-shadow: var(--shadow);
+  display: flex; flex-direction: column; gap: 18px;
+}
+
+/* State panel */
+.feed-state-panel {
+  background: var(--bg2); border-radius: var(--radius-sm);
+  padding: 14px 16px; border: 1px solid var(--border);
+  display: flex; align-items: center; gap: 12px;
+}
+.feed-state-icon { font-size: 1.6rem; line-height: 1; }
+.feed-state-info { flex: 1; }
+.feed-state-title { font-size: 0.9rem; font-weight: 600; color: var(--purple); }
+.feed-state-sub   { font-size: 0.71rem; color: var(--text2); margin-top: 3px; line-height: 1.5; }
+
+/* Slider */
+.slider-wrap { display: flex; flex-direction: column; gap: 8px; }
+.slider-labels {
+  display: flex; justify-content: space-between;
+  font-size: 0.63rem; color: var(--text3); letter-spacing: 0.5px;
+}
+.servo-slider {
+  -webkit-appearance: none; appearance: none;
+  width: 100%; height: 5px; border-radius: 5px;
+  background: var(--border2); outline: none; cursor: pointer;
+  transition: background var(--ease);
+}
+.servo-slider::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none;
+  width: 20px; height: 20px; border-radius: 50%;
+  background: var(--purple); cursor: pointer;
+  box-shadow: 0 0 0 3px var(--purple-dim), 0 2px 6px rgba(0,0,0,0.3);
+  transition: transform var(--ease), box-shadow var(--ease);
+}
+.servo-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+  box-shadow: 0 0 0 6px var(--purple-dim), 0 2px 8px rgba(0,0,0,0.3);
+}
+.servo-slider::-moz-range-thumb {
+  width: 20px; height: 20px; border-radius: 50%; border: none;
+  background: var(--purple); cursor: pointer;
+}
+.slider-val-row {
+  display: flex; align-items: center; justify-content: space-between;
+}
+.slider-cur {
+  font-size: 1.1rem; font-weight: 600; color: var(--purple);
+  font-family: monospace; letter-spacing: 1px;
+}
+
+/* Presets */
+.preset-lbl { font-size: 0.65rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--text2); }
+.preset-row { display: flex; gap: 6px; flex-wrap: wrap; }
+.preset-btn {
+  padding: 7px 11px; border-radius: var(--radius-xs);
+  border: 1.5px solid var(--border2); background: transparent;
+  color: var(--text2); font-size: 0.72rem; font-weight: 600;
+  cursor: pointer; transition: all var(--ease); white-space: nowrap;
+}
+.preset-btn:hover       { border-color: var(--purple); color: var(--purple); background: var(--purple-dim); }
+.preset-btn.active-pre  { border-color: var(--purple); color: var(--purple); background: var(--purple-dim); }
+.preset-btn.home-btn    { border-color: var(--accent);  color: var(--accent);  background: var(--accent-dim); }
+.preset-btn.home-btn:hover { background: var(--accent); color: #fff; }
+
+/* Manual input */
+.manual-row {
+  display: flex; gap: 8px; align-items: center;
+}
+.manual-row .field {
+  width: 90px; text-align: center;
+  -moz-appearance: textfield;
+}
+.manual-row .field::-webkit-inner-spin-button,
+.manual-row .field::-webkit-outer-spin-button { -webkit-appearance: none; }
+.manual-hint { font-size: 0.68rem; color: var(--text3); flex: 1; }
+
+/* ============================================================
+   HELP / MANUAL SECTION
+   ============================================================ */
+.help-toggle {
+  width: 100%; background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px 22px;
+  display: flex; align-items: center; justify-content: space-between;
+  cursor: pointer; transition: all var(--ease); box-shadow: var(--shadow);
+  font-size: 0.82rem; font-weight: 600; color: var(--text2);
+}
+.help-toggle:hover { border-color: var(--accent); color: var(--accent); }
+.help-toggle .arrow { transition: transform 0.3s ease; font-size: 0.75rem; }
+.help-toggle.open .arrow { transform: rotate(180deg); }
+
+.help-body {
+  display: none; background: var(--card); border: 1px solid var(--border);
+  border-top: none; border-radius: 0 0 var(--radius) var(--radius);
+  padding: 0 22px 22px; box-shadow: var(--shadow);
+}
+.help-body.open { display: block; }
+
+.help-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 16px; margin-top: 20px;
+}
+.help-card {
+  background: var(--bg2); border-radius: var(--radius-sm);
+  border: 1px solid var(--border); padding: 16px 18px;
+}
+.help-card-title {
+  font-size: 0.72rem; font-weight: 700; letter-spacing: 1.5px;
+  text-transform: uppercase; color: var(--accent); margin-bottom: 12px;
+  display: flex; align-items: center; gap: 8px;
+}
+.help-card p {
+  font-size: 0.78rem; color: var(--text2); line-height: 1.7; margin-bottom: 8px;
+}
+.help-card p:last-child { margin-bottom: 0; }
+.help-card strong { color: var(--text); font-weight: 600; }
+.help-card code {
+  background: var(--border2); border-radius: 4px;
+  padding: 1px 6px; font-family: monospace; font-size: 0.75rem;
+  color: var(--orange);
+}
+.help-arch {
+  font-family: monospace; font-size: 0.73rem; color: var(--text2);
+  background: var(--bg); border-radius: var(--radius-xs); padding: 12px 14px;
+  border: 1px solid var(--border); line-height: 1.9; margin-top: 8px;
+  overflow-x: auto; white-space: pre;
+}
+.help-cmd-row {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 6px 0; border-bottom: 1px solid var(--border);
+  font-size: 0.76rem;
+}
+.help-cmd-row:last-child { border-bottom: none; }
+.help-cmd { color: var(--purple); font-family: monospace; font-size: 0.72rem;
+  min-width: 130px; font-weight: 600; flex-shrink: 0; }
+.help-cmd-desc { color: var(--text2); line-height: 1.5; }
+.help-tip {
+  margin-top: 10px; background: var(--accent-dim); border: 1px solid rgba(0,212,170,0.2);
+  border-radius: var(--radius-xs); padding: 9px 12px;
+  font-size: 0.74rem; color: var(--accent); line-height: 1.6;
+}
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+footer {
+  text-align: center; color: var(--text3); font-size: 0.7rem;
+  padding: 28px 20px 32px; border-top: 1px solid var(--border); margin-top: 16px;
+}
+
+/* ============================================================
+   ANIMATION HELPERS
+   ============================================================ */
+@keyframes flash { 0%{opacity:.35} 100%{opacity:1} }
+.flash { animation: flash 0.35s ease; }
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media(max-width:580px) {
+  .cards-grid { grid-template-columns: 1fr 1fr; }
+  .card-val   { font-size: 2.2rem; }
+  .nav-right .upd-label { display: none; }
+  .days-row   { gap: 4px; }
+  .day-c      { max-width: 44px; }
+  .day-c .d   { display: none; }
+}
+@media(max-width:360px) {
+  .cards-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     NAVBAR
+     ============================================================ -->
+<nav>
+  <div class="nav-inner">
+    <div class="nav-logo">
+      <svg viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <ellipse cx="15" cy="17" rx="12" ry="8" fill="currentColor" opacity="0.12"/>
+        <path d="M3 17 Q9 8 15 14 Q21 20 27 11" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+        <circle cx="24" cy="9" r="2.2" fill="currentColor"/>
+        <path d="M15 5 Q17.5 3 20 4.5 Q17.5 7 15 5Z" fill="currentColor"/>
+      </svg>
+      Aqua Master
+    </div>
+
+    <div class="nav-center">
+      <div class="conn-badge" id="connBadge">
+        <div class="dot"></div>
+        <span id="connTxt">Conectando...</span>
+      </div>
+      <span class="upd-label" id="lastUpd">—</span>
+    </div>
+
+    <div class="nav-right">
+      <button class="nav-btn" id="pauseBtn" title="Pausar atualização automática" aria-label="Pausar" onclick="togglePause()">⏸</button>
+      <button class="nav-btn" id="themeBtn" title="Alternar tema" aria-label="Tema">🌙</button>
+      <button class="nav-btn" id="settBtn"  title="Configurações"  aria-label="Config">⚙️</button>
+    </div>
+  </div>
+</nav>
+
+<!-- ALERT BAR -->
+<div class="wrap">
+  <div class="alert-bar hidden" id="alertBar">
+    <span>⚠️</span><span id="alertTxt">Alerta</span>
+  </div>
+</div>
+
+<!-- ============================================================
+     MAIN
+     ============================================================ -->
+<div class="wrap" style="padding-bottom: 20px;">
+
+  <!-- STATUS CARDS -->
+  <div class="sec">Leituras em tempo real</div>
+  <div class="cards-grid">
+
+    <!-- Temperatura -->
+    <div class="card">
+      <div class="card-top-bar" style="background: var(--orange)"></div>
+      <div class="card-lbl">🌡️ Temperatura</div>
+      <div class="card-val" id="tvCard" style="color: var(--orange)">
+        <span id="tvVal">--</span><span class="card-unit">°C</span>
+      </div>
+      <div class="card-sub">Sensor DS18B20</div>
+      <div class="badge" id="tvBadge" style="color: var(--orange)">— aguardando</div>
+    </div>
+
+    <!-- pH -->
+    <div class="card">
+      <div class="card-top-bar" style="background: var(--accent)"></div>
+      <div class="card-lbl">💧 pH da Água</div>
+      <div class="card-val" id="phvCard" style="color: var(--accent)">
+        <span id="phvVal">--</span>
+      </div>
+      <div class="card-sub">Ideal: <span id="phRange">6.5 – 7.5</span></div>
+      <div class="badge" id="phvBadge" style="color: var(--accent)">— aguardando</div>
+    </div>
+
+    <!-- Bomba -->
+    <div class="card">
+      <div class="card-top-bar" style="background: var(--blue)"></div>
+      <div class="card-lbl">⚡ Bomba d'Água</div>
+      <div class="pump-row">
+        <div class="pump-dot" id="pumpDot"></div>
+        <div class="pump-text" id="pumpTxt" style="color: var(--text2)">—</div>
+      </div>
+      <div class="card-sub" id="pumpModeSub">Modo: —</div>
+      <div class="badge" id="pumpBadge" style="color: var(--blue)">— aguardando</div>
+    </div>
+
+    <!-- Alimentador -->
+    <div class="card">
+      <div class="card-top-bar" style="background: var(--purple)"></div>
+      <div class="card-lbl">🍽️ Alimentador</div>
+      <div class="card-val" id="feedCard" style="color: var(--purple); font-size: 1.6rem; padding-top: 5px;">
+        <span id="feedState">—</span>
+      </div>
+      <div class="card-sub">Ciclo de 7 dias</div>
+      <div class="mini-days" id="miniDays">
+        <div class="mini-d" id="md1">1</div>
+        <div class="mini-d" id="md2">2</div>
+        <div class="mini-d" id="md3">3</div>
+        <div class="mini-d" id="md4">4</div>
+        <div class="mini-d" id="md5">5</div>
+        <div class="mini-d" id="md6">6</div>
+        <div class="mini-d" id="md7">7</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- CHARTS -->
+  <div class="sec">Histórico dos sensores</div>
+  <div class="charts-grid">
+
+    <div class="chart-card">
+      <div class="chart-head">
+        <div class="chart-lbl">🌡️ Temperatura</div>
+        <div class="filters" id="tfiltDiv">
+          <button class="filt" onclick="setF('t',1,this)">1h</button>
+          <button class="filt on" onclick="setF('t',6,this)">6h</button>
+          <button class="filt" onclick="setF('t',24,this)">24h</button>
+        </div>
+      </div>
+      <div class="chart-box"><canvas id="cTemp"></canvas></div>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-head">
+        <div class="chart-lbl">💧 pH</div>
+        <div class="filters" id="pfiltDiv">
+          <button class="filt" onclick="setF('p',1,this)">1h</button>
+          <button class="filt on" onclick="setF('p',6,this)">6h</button>
+          <button class="filt" onclick="setF('p',24,this)">24h</button>
+        </div>
+      </div>
+      <div class="chart-box"><canvas id="cPH"></canvas></div>
+    </div>
+
+  </div>
+
+  <!-- CONTROLS -->
+  <div class="sec">Controles do sistema</div>
+  <div class="controls-grid">
+
+    <!-- Pump controls -->
+    <div class="ctrl-card">
+      <div class="ctrl-lbl">⚡ Bomba d'Água</div>
+
+      <div class="ctrl-row">
+        <div class="ctrl-row-lbl">Modo atual</div>
+        <div class="mode-chip" id="pumpModeChip">Auto</div>
+      </div>
+
+      <div class="ctrl-row">
+        <div class="ctrl-row-lbl">Manual</div>
+        <div class="btn-row">
+          <button class="btn btn-blue"  onclick="cmd('bomba_ligar')">▶ Ligar</button>
+          <button class="btn btn-gray"  onclick="cmd('bomba_desligar')">⏹ Desligar</button>
+        </div>
+      </div>
+
+      <div class="ctrl-row">
+        <div class="ctrl-row-lbl">Automático</div>
+        <button class="btn btn-teal" onclick="cmd('bomba_auto')">🔄 Retomar ciclo</button>
+      </div>
+    </div>
+
+    <!-- Feeder controls -->
+    <div class="ctrl-card">
+      <div class="ctrl-lbl">🍽️ Alimentador</div>
+
+      <div class="ctrl-row">
+        <div class="ctrl-row-lbl">Estado</div>
+        <div class="mode-chip" id="feedModeChip">—</div>
+      </div>
+
+      <div class="ctrl-row">
+        <div class="ctrl-row-lbl">Alimentar</div>
+        <button class="btn btn-orange" onclick="cmd('alimentar_agora')">🍽 Alimentar agora</button>
+      </div>
+
+      <div class="ctrl-row">
+        <div class="ctrl-row-lbl">Ciclo</div>
+        <div class="btn-row">
+          <button class="btn btn-purple" onclick="cmd('iniciar_ciclo')">▶ Iniciar ciclo</button>
+          <button class="btn btn-gray"   onclick="cmd('ir_home')">⌂ Home</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- SERVO / FEEDER DETAIL -->
+  <div class="sec">Servo motor &amp; alimentador</div>
+  <div class="servo-grid">
+
+    <!-- Arc gauge -->
+    <div class="servo-gauge-card">
+      <div class="ctrl-lbl">📐 Posição atual</div>
+
+      <div class="arc-wrap">
+        <svg viewBox="0 0 180 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- track: semicircle from 180° to 0° (left to right) -->
+          <path id="arcTrack"
+            d="M 14 90 A 76 76 0 0 1 166 90"
+            stroke-width="10" stroke-linecap="round" fill="none"/>
+          <!-- fill: same path, animated via stroke-dashoffset -->
+          <path id="arcFill"
+            d="M 14 90 A 76 76 0 0 1 166 90"
+            stroke-width="10" stroke-linecap="round" fill="none"
+            stroke-dasharray="239" stroke-dashoffset="239"/>
+        </svg>
+        <div class="arc-label">
+          <div class="arc-deg" id="arcDeg">0</div>
+          <div class="arc-unit">graus</div>
+        </div>
+      </div>
+
+      <div class="servo-day-badge" id="servoDayBadge">Home</div>
+
+      <div class="servo-info-row">
+        <div class="servo-stat">
+          <div class="servo-stat-val" id="si_dia">1</div>
+          <div class="servo-stat-lbl">Dia</div>
+        </div>
+        <div class="servo-stat">
+          <div class="servo-stat-val" id="si_alim">0</div>
+          <div class="servo-stat-lbl">Aliment.</div>
+        </div>
+        <div class="servo-stat">
+          <div class="servo-stat-val" id="si_ciclos">0</div>
+          <div class="servo-stat-lbl">Ciclos</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Control panel -->
+    <div class="servo-ctrl-card">
+
+      <!-- State panel -->
+      <div class="feed-state-panel" id="feedStatePanel">
+        <div class="feed-state-icon" id="feedStateIcon">⏳</div>
+        <div class="feed-state-info">
+          <div class="feed-state-title" id="feedStateTitle">Aguardando dados...</div>
+          <div class="feed-state-sub"  id="feedStateSub">Conectando ao backend</div>
+        </div>
+      </div>
+
+      <!-- Slider -->
+      <div class="slider-wrap">
+        <div class="preset-lbl">Controle deslizante — 0° a 210°</div>
+        <input type="range" class="servo-slider" id="servoSlider"
+          min="0" max="180" step="1" value="0">
+        <div class="slider-labels" id="sliderLabels">
+          <span>0°</span><span>45°</span><span>90°</span><span>135°</span><span>180°</span>
+        </div>
+        <div class="slider-val-row">
+          <span class="slider-cur"><span id="sliderVal">0</span>°</span>
+          <button class="btn btn-purple" onclick="sendServo(+el('servoSlider').value)">↗ Mover</button>
+        </div>
+      </div>
+
+      <!-- Presets -->
+      <div>
+        <div class="preset-lbl" style="margin-bottom:8px">Posições pré-definidas</div>
+        <div class="preset-row" id="presetRow">
+          <!-- gerado dinamicamente por renderPresets() -->
+        </div>
+      </div>
+
+      <!-- Manual input -->
+      <div>
+        <div class="preset-lbl" style="margin-bottom:8px">Grau manual (ajuste físico)</div>
+        <div class="manual-row">
+          <input type="number" class="field" id="manualDeg"
+            min="0" max="180" step="1" value="0" placeholder="0–180">
+          <button class="btn btn-purple" onclick="sendManual()">↗ Mover</button>
+          <span class="manual-hint">Digite qualquer valor entre 0 e 180° para ajuste fino do motor.</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- FEEDER CYCLE -->
+  <div class="sec">Ciclo de alimentação — 7 dias</div>
+  <div class="cycle-card">
+
+    <div class="cycle-top">
+      <span class="cycle-top-lbl">Progresso do ciclo atual</span>
+      <span class="cycle-pct" id="cyclePct">0%</span>
+    </div>
+    <div class="progress-bar">
+      <div class="progress-fill" id="cycleFill" style="width:0%"></div>
+    </div>
+
+    <div class="days-row" id="daysRow">
+      <div class="day-c" id="dc1"><span class="n">1</span><span class="d">Dia</span></div>
+      <div class="day-c" id="dc2"><span class="n">2</span><span class="d">Dia</span></div>
+      <div class="day-c" id="dc3"><span class="n">3</span><span class="d">Dia</span></div>
+      <div class="day-c" id="dc4"><span class="n">4</span><span class="d">Dia</span></div>
+      <div class="day-c" id="dc5"><span class="n">5</span><span class="d">Dia</span></div>
+      <div class="day-c" id="dc6"><span class="n">6</span><span class="d">Dia</span></div>
+      <div class="day-c" id="dc7"><span class="n">7</span><span class="d">Dia</span></div>
+    </div>
+
+    <div class="cycle-stats">
+      <div class="cstat">
+        <div class="cstat-val" id="sAlim">0</div>
+        <div class="cstat-lbl">Alimentações</div>
+      </div>
+      <div class="cstat">
+        <div class="cstat-val" id="sCiclos">0</div>
+        <div class="cstat-lbl">Ciclos completos</div>
+      </div>
+      <div class="cstat">
+        <div class="cstat-val" id="sDia">1/7</div>
+        <div class="cstat-lbl">Dia atual</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- SCHEDULE -->
+  <div class="sec">Agenda de alimentação</div>
+  <div class="sched-card">
+    <div style="font-size:0.82rem; color:var(--text2)">
+      Defina horários fixos para alimentar os peixes automaticamente pelo dashboard.
+    </div>
+    <div class="sched-note">
+      ⚠️ O dashboard precisa estar aberto no navegador para os horários funcionarem. Para agendamento sem o browser aberto, o backend Python precisará de suporte a scheduler (próxima fase).
+    </div>
+
+    <div class="sched-list" id="schedList"></div>
+
+    <div class="sched-add">
+      <input type="time"  class="field field-time"  id="sTime"  value="08:00">
+      <input type="text"  class="field field-label" id="sLabel" placeholder="Descrição (ex: Manhã)">
+      <button class="btn btn-teal" onclick="addSched()">+ Adicionar</button>
+    </div>
+  </div>
+
+  <!-- HELP / MANUAL -->
+  <div class="sec">Manual do sistema</div>
+
+  <button class="help-toggle" id="helpToggle" onclick="toggleHelp()">
+    <span>📖 &nbsp;Instruções, referência e integração do Aqua Master</span>
+    <span class="arrow">▼</span>
+  </button>
+  <div class="help-body" id="helpBody">
+    <div class="help-grid">
+
+      <!-- Arquitetura -->
+      <div class="help-card" style="grid-column: 1 / -1;">
+        <div class="help-card-title">🔗 Arquitetura do sistema</div>
+        <div class="help-arch">
+  [ESP32]  ──POST /dados (a cada 5s)──►  [Python Flask + SQLite]
+    ▲                                           │
+    └──── comando (bomba, servo, etc.) ◄────────┘
+                                                │
+  [Dashboard HTML] ──GET /status, /historico───►┘
+        </div>
+        <p style="margin-top:10px;">O <strong>ESP32</strong> envia os dados dos sensores ao backend Python a cada 5 segundos via HTTP POST. O backend salva no banco SQLite e retorna qualquer comando pendente. O <strong>dashboard</strong> busca o status atual e o histórico independentemente, lendo direto do banco.</p>
+        <p><strong>Arquivos do projeto:</strong> <code>aquamaster_esp32_v3.ino</code> → firmware do ESP32 &nbsp;|&nbsp; <code>aquamaster_api.py</code> → backend Python &nbsp;|&nbsp; <code>dashboard.html</code> → este painel &nbsp;|&nbsp; <code>aquamaster.db</code> → banco SQLite (criado automaticamente)</p>
+      </div>
+
+      <!-- Cards de status -->
+      <div class="help-card">
+        <div class="help-card-title">📊 Cards de status</div>
+        <p><strong>🌡️ Temperatura</strong> — Leitura do sensor DS18B20 (GPIO 4). Mostra a temperatura atual em °C e indica se está dentro da faixa configurada nas Configurações. Valor <code>-99</code> indica sensor desconectado.</p>
+        <p><strong>💧 pH da Água</strong> — Leitura do módulo PH-4502C (GPIO 32). A faixa ideal para Beta é 6.5–7.5. Usa calibração dual-slope com 3 pontos (pH 4, 7 e 10) para maior precisão em toda a faixa. Consulte o card de Calibração para o processo completo.</p>
+        <p><strong>⚡ Bomba d'Água</strong> — Estado atual do relé (GPIO 18). Liga/desliga no ciclo automático (15 min ligada / 5 min pausa por padrão no firmware).</p>
+        <p><strong>🍽️ Alimentador</strong> — Estado do ciclo de 7 dias. <em>Ciclo ativo</em>: aguardando próximo dia. <em>Aguardando recarga</em>: ciclo completo, coloque ração e clique "Iniciar ciclo".</p>
+      </div>
+
+      <!-- Gráficos -->
+      <div class="help-card">
+        <div class="help-card-title">📈 Gráficos e filtros de tempo</div>
+        <p>Os gráficos mostram o histórico de temperatura e pH. Use os botões <strong>1h / 6h / 24h</strong> para escolher a janela de tempo. Clicar num botão busca os dados imediatamente, mesmo com a atualização pausada.</p>
+        <p><strong>Como funciona o downsampling:</strong> com 5s de polling, 24h geram ~17.000 pontos. O sistema reduz automaticamente — 1h mantém todos os pontos, 6h usa 1 a cada 25s, 24h usa 1 a cada 100s — entregando sempre gráficos fluidos.</p>
+        <p>Se a janela selecionada for maior que o período de dados disponíveis, o gráfico mostrará apenas o que existe no banco.</p>
+        <div class="help-tip">⏸ Pause a atualização automática antes de analisar os gráficos para evitar que os dados sejam recarregados enquanto você observa.</div>
+      </div>
+
+      <!-- Controles -->
+      <div class="help-card">
+        <div class="help-card-title">🎛️ Comandos e controles</div>
+        <div class="help-cmd-row"><span class="help-cmd">bomba_ligar</span><span class="help-cmd-desc">Liga a bomba manualmente e entra em modo manual.</span></div>
+        <div class="help-cmd-row"><span class="help-cmd">bomba_desligar</span><span class="help-cmd-desc">Desliga a bomba manualmente.</span></div>
+        <div class="help-cmd-row"><span class="help-cmd">bomba_auto</span><span class="help-cmd-desc">Retorna ao ciclo automático (15 min liga / 5 min pausa).</span></div>
+        <div class="help-cmd-row"><span class="help-cmd">alimentar_agora</span><span class="help-cmd-desc">Força alimentação imediata no dia atual do ciclo.</span></div>
+        <div class="help-cmd-row"><span class="help-cmd">iniciar_ciclo</span><span class="help-cmd-desc">Inicia novo ciclo após recarregar o alimentador.</span></div>
+        <div class="help-cmd-row"><span class="help-cmd">ir_home</span><span class="help-cmd-desc">Move o servo para 0° (posição de espera/recarga).</span></div>
+        <div class="help-cmd-row"><span class="help-cmd">servo_90</span><span class="help-cmd-desc">Move o servo para o ângulo especificado (0–180°).</span></div>
+        <div class="help-cmd-row"><span class="help-cmd">set_posicoes_…</span><span class="help-cmd-desc">Atualiza as 7 posições do ciclo no ESP32 de uma vez.</span></div>
+        <p style="margin-top:8px;font-size:0.71rem;color:var(--text3);">Os comandos ficam pendentes no banco SQLite e são entregues ao ESP32 na próxima requisição POST (em até 5s).</p>
+      </div>
+
+      <!-- Ciclo de alimentação -->
+      <div class="help-card">
+        <div class="help-card-title">🔄 Ciclo de alimentação — 7 dias</div>
+        <p>O disco do alimentador tem 7 compartimentos. O servo gira para a posição de cada compartimento uma vez por dia (intervalo de 24h no firmware, 1 min para testes).</p>
+        <p><strong>Sequência:</strong> Dia 1 → Dia 2 → … → Dia 7 → aguarda 10s → retorna ao Home (0°) → entra em modo "Aguardando recarga". Coloque ração nova e clique <em>Iniciar ciclo</em> para recomeçar.</p>
+        <p><strong>Posições padrão (passo 25°):</strong> Dia 1 = 25°, Dia 2 = 50°, …, Dia 7 = 175°. Ajuste individualmente em ⚙️ Configurações → <em>Posição do servo por dia</em>. Ao salvar, as posições são sincronizadas com o ESP32 automaticamente.</p>
+        <div class="help-tip">Para testar o ciclo rapidamente: altere <code>#define INTERVALO_MS 60000</code> no .ino (1 minuto). Para uso real, use <code>86400000</code> (24 horas).</div>
+      </div>
+
+      <!-- Servo motor -->
+      <div class="help-card">
+        <div class="help-card-title">📐 Servo motor — ajuste físico</div>
+        <p>O servo SG90 (GPIO 13) vai de 0° a 180°. O <strong>gauge em arco</strong> mostra a posição atual lida do ESP32. O badge indica se é Home ou qual dia corresponde ao ângulo atual.</p>
+        <p><strong>Slider 0–180°:</strong> arraste e clique "Mover" para uma posição exata.</p>
+        <p><strong>Botões de preset:</strong> Home (0°) e Dia 1–7 com os ângulos configurados. O botão correspondente à posição atual fica destacado.</p>
+        <p><strong>Campo manual:</strong> digite qualquer valor entre 0 e 180° para ajuste fino. Use enquanto posiciona o disco físico do alimentador.</p>
+        <p>Movimentos via dashboard não alteram o estado do ciclo automático — servem apenas para ajuste físico.</p>
+      </div>
+
+      <!-- Agenda -->
+      <div class="help-card">
+        <div class="help-card-title">🕐 Agenda de alimentação</div>
+        <p>Defina horários fixos (ex: 08:00, 12:00) para disparar <code>alimentar_agora</code> automaticamente. A agenda é verificada a cada 10 segundos pelo dashboard e dispara o comando via backend.</p>
+        <p><strong>Limitação importante:</strong> a agenda funciona apenas enquanto a aba do dashboard estiver aberta no navegador. Para agendamento independente do browser, será necessário adicionar um scheduler ao backend Python (fase futura).</p>
+        <p>Use o toggle ativo/pausado em cada horário para habilitar ou desabilitar sem remover o horário.</p>
+      </div>
+
+      <!-- Calibração pH -->
+      <div class="help-card" style="grid-column: 1 / -1;">
+        <div class="help-card-title">🧪 Calibração do sensor de pH — Processo completo (dual-slope)</div>
+
+        <p><strong>Por que dual-slope?</strong> O sistema usa 3 soluções tampão (pH 4, 7 e 10) e calcula dois slopes independentes — um para a faixa ácida (4–7) e outro para a alcalina (7–10). Isso elimina o erro acumulado de uma reta única e entrega leituras precisas em toda a faixa de interesse para aquários.</p>
+
+        <p><strong>Materiais necessários:</strong> solução tampão pH 4.0, pH 7.0 e pH 10.0 (kits de calibração vendidos juntos), água destilada para enxágue entre mergulhos, e um copo pequeno para cada solução.</p>
+
+        <p style="font-size:0.75rem;font-weight:700;color:var(--text);margin-top:14px;margin-bottom:6px;">🔒 ANTES DE COMEÇAR — Cuidados com o eletrodo</p>
+        <p>O eletrodo deve ser sempre armazenado <strong>na solução KCl</strong> (o líquido que veio dentro do capuchon rosqueado). Nunca guarde em água destilada — resseca a membrana e inutiliza o sensor. Retire a proteção rosqueada apenas na hora de calibrar ou medir.</p>
+
+        <p style="font-size:0.75rem;font-weight:700;color:var(--text);margin-top:14px;margin-bottom:6px;">📋 ETAPAS DE CALIBRAÇÃO</p>
+
+        <div class="help-cmd-row" style="align-items:flex-start;gap:12px;margin-bottom:10px;">
+          <span class="help-cmd" style="min-width:60px;text-align:center;padding:6px 10px;">①</span>
+          <span class="help-cmd-desc"><strong>Abra o Arduino IDE → Monitor Serial</strong> com velocidade <code>115200 baud</code>. Certifique-se de que o ESP32 está ligado e conectado ao computador. Selecione <em>Ambos NL &amp; CR</em> (ou <em>Both NL &amp; CR</em>) no rodapé do monitor.</span>
+        </div>
+
+        <div class="help-cmd-row" style="align-items:flex-start;gap:12px;margin-bottom:10px;">
+          <span class="help-cmd" style="min-width:60px;text-align:center;padding:6px 10px;">②</span>
+          <span class="help-cmd-desc"><strong>Entre no modo calibração:</strong> digite exatamente <code>Calibrar Sensor PH</code> e pressione Enter. O ESP32 começará a exibir a tensão no GPIO 32 a cada 1 segundo. O sistema continua controlando a bomba e o alimentador normalmente.</span>
+        </div>
+
+        <div class="help-cmd-row" style="align-items:flex-start;gap:12px;margin-bottom:10px;">
+          <span class="help-cmd" style="min-width:60px;text-align:center;padding:6px 10px;">③</span>
+          <span class="help-cmd-desc"><strong>Calibrar pH 7.0 (ponto neutro):</strong> Enxágue o eletrodo com água destilada e mergulhe na solução pH 7.0. Aguarde a tensão estabilizar (20–30 segundos). Anote o valor de <em>Tensao GPIO32</em> exibido. Em seguida envie: <code>neutro 2.XXXX</code> — substituindo pelo valor anotado.<br>Exemplo: <code>neutro 2.5123</code></span>
+        </div>
+
+        <div class="help-cmd-row" style="align-items:flex-start;gap:12px;margin-bottom:10px;">
+          <span class="help-cmd" style="min-width:60px;text-align:center;padding:6px 10px;">④</span>
+          <span class="help-cmd-desc"><strong>Calibrar pH 4.0 (tampão ácido):</strong> Enxágue o eletrodo com água destilada, mergulhe na solução pH 4.0 e aguarde estabilizar. Anote a tensão e envie: <code>acido X.XXXX</code><br>Exemplo: <code>acido 3.2950</code><br>O firmware recalcula o slopeÁcido automaticamente e exibe o novo valor.</span>
+        </div>
+
+        <div class="help-cmd-row" style="align-items:flex-start;gap:12px;margin-bottom:10px;">
+          <span class="help-cmd" style="min-width:60px;text-align:center;padding:6px 10px;">⑤</span>
+          <span class="help-cmd-desc"><strong>Calibrar pH 10.0 (tampão alcalino):</strong> Enxágue o eletrodo com água destilada, mergulhe na solução pH 10.0 e aguarde estabilizar. Anote a tensão e envie: <code>alcalino X.XXXX</code><br>Exemplo: <code>alcalino 2.0070</code><br>O firmware recalcula o slopeAlcalino automaticamente.</span>
+        </div>
+
+        <div class="help-cmd-row" style="align-items:flex-start;gap:12px;margin-bottom:10px;">
+          <span class="help-cmd" style="min-width:60px;text-align:center;padding:6px 10px;">⑥</span>
+          <span class="help-cmd-desc"><strong>Verificação e ajuste fino (opcional):</strong> Mergulhe o eletrodo em uma das soluções tampão novamente e veja se o pH calculado confere. Se houver uma diferença pequena constante em toda a faixa, use <code>offset X.XX</code> para corrigir.<br>Exemplo: sensor lendo 6.85 com eletrodo no pH 7.0 → <code>offset 0.15</code></span>
+        </div>
+
+        <div class="help-cmd-row" style="align-items:flex-start;gap:12px;margin-bottom:10px;">
+          <span class="help-cmd" style="min-width:60px;text-align:center;padding:6px 10px;">⑦</span>
+          <span class="help-cmd-desc"><strong>Finalizar e persistir os valores:</strong> Digite <code>Concluido</code> e pressione Enter. O ESP32 imprimirá todos os valores finais:<br><code>tensaoNeutro</code>, <code>tensaoTampao4</code>, <code>tensaoTampao10</code>, <code>PH_OFFSET</code>, <code>slopeAcido</code>, <code>slopeAlcalino</code>.<br><strong>Copie esses valores para as constantes correspondentes no topo do .ino</strong> e regrave o firmware — assim a calibração persiste após qualquer reinicialização.</span>
+        </div>
+
+        <p style="font-size:0.75rem;font-weight:700;color:var(--text);margin-top:14px;margin-bottom:6px;">⌨️ REFERÊNCIA DE COMANDOS SERIAL (115200 baud)</p>
+        <div class="help-cmd-row"><span class="help-cmd">Calibrar Sensor PH</span><span class="help-cmd-desc">Entra no modo calibração — leituras a cada 1s, bomba e alimentador continuam ativos.</span></div>
+        <div class="help-cmd-row"><span class="help-cmd">neutro X.XXXX</span><span class="help-cmd-desc">Define a tensão medida na solução pH 7.0. Recalcula ambos os slopes automaticamente.</span></div>
+        <div class="help-cmd-row"><span class="help-cmd">acido X.XXXX</span><span class="help-cmd-desc">Define a tensão medida na solução pH 4.0. Recalcula o slopeÁcido.</span></div>
+        <div class="help-cmd-row"><span class="help-cmd">alcalino X.XXXX</span><span class="help-cmd-desc">Define a tensão medida na solução pH 10.0. Recalcula o slopeAlcalino.</span></div>
+        <div class="help-cmd-row"><span class="help-cmd">offset X.XX</span><span class="help-cmd-desc">Aplica um ajuste fino constante ao pH calculado (positivo ou negativo). Use quando todos os pontos estão deslocados por um valor fixo.</span></div>
+        <div class="help-cmd-row"><span class="help-cmd">Concluido</span><span class="help-cmd-desc">Sai do modo calibração, imprime todos os valores finais e retoma operação normal.</span></div>
+
+        <div class="help-tip" style="margin-top:14px;">💡 <strong>Os valores não persistem no ESP32 após desligar</strong> — a memória SRAM é apagada no reset. Sempre copie os valores exibidos pelo comando <code>Concluido</code> para as constantes <code>tensaoNeutro</code>, <code>tensaoTampao4</code> e <code>tensaoTampao10</code> no início do .ino e regrave.</div>
+        <div class="help-tip">🔁 <strong>Quando recalibrar?</strong> O eletrodo de vidro envelhece — recalibre a cada 1–2 meses, sempre que trocar a solução KCl de armazenamento, ou se as leituras parecerem inconsistentes.</div>
+      </div>
+
+      <!-- Configurações -->
+      <div class="help-card">
+        <div class="help-card-title">⚙️ Referência das configurações</div>
+        <div class="help-cmd-row"><span class="help-cmd">URL do Backend</span><span class="help-cmd-desc">IP local do PC (ex: <code>http://192.168.1.100:5000</code>) ou URL do ngrok para acesso externo.</span></div>
+        <div class="help-cmd-row"><span class="help-cmd">Faixa de pH</span><span class="help-cmd-desc">Valores mínimo e máximo ideais. Alertas aparecem fora dessa faixa.</span></div>
+        <div class="help-cmd-row"><span class="help-cmd">Faixa de temp.</span><span class="help-cmd-desc">Temperatura ideal em °C. Alerta visual quando fora da faixa.</span></div>
+        <div class="help-cmd-row"><span class="help-cmd">Posição por dia</span><span class="help-cmd-desc">Ângulo exato (0–180°) de cada compartimento do disco. Salvar envia <code>set_posicoes_…</code> ao ESP32.</span></div>
+        <div class="help-cmd-row"><span class="help-cmd">Intervalo de atualiz.</span><span class="help-cmd-desc">Frequência de atualização dos cards de status (3s, 5s, 10s ou 30s). O histórico atualiza a cada 4× esse valor (mín. 60s).</span></div>
+        <div class="help-tip">⏸ O botão de pausa na barra superior suspende toda atualização automática. Abrindo ⚙️ Configurações, a atualização é suspensa automaticamente e retoma ao fechar — sem afetar o estado do botão ⏸.</div>
+      </div>
+
+    </div><!-- /help-grid -->
+  </div><!-- /help-body -->
+
+</div><!-- /wrap -->
+
+<!-- ============================================================
+     SETTINGS MODAL
+     ============================================================ -->
+<div class="overlay" id="settModal" onclick="if(event.target===this)closeMod()">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title">⚙️ Configurações</div>
+      <button class="modal-x" onclick="closeMod()">✕</button>
+    </div>
+
+    <div class="fg">
+      <label class="flbl">URL do Backend Python</label>
+      <input type="text" class="finput" id="cfUrl" placeholder="https://aquamaster.onrender.com">
+      <div class="fhint">Deixe em branco para usar o servidor atual. Para uso local, informe o IP (ex: http://192.168.1.100:5000).</div>
+    </div>
+
+    <div class="fg">
+      <label class="flbl">Faixa ideal de pH</label>
+      <div class="f2">
+        <input type="number" class="finput" id="cfPhMin" placeholder="6.5" step="0.1" min="0" max="14">
+        <input type="number" class="finput" id="cfPhMax" placeholder="7.5" step="0.1" min="0" max="14">
+      </div>
+      <div class="fhint">Alertas são exibidos quando o pH sair desta faixa.</div>
+    </div>
+
+    <div class="fg">
+      <label class="flbl">Faixa ideal de temperatura (°C)</label>
+      <div class="f2">
+        <input type="number" class="finput" id="cfTMin" placeholder="22" step="0.5">
+        <input type="number" class="finput" id="cfTMax" placeholder="28" step="0.5">
+      </div>
+    </div>
+
+    <div class="fg">
+      <label class="flbl">Posição do servo por dia (0–180°)</label>
+      <div id="diasInputsGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:8px 14px;margin-bottom:6px;"></div>
+      <div class="fhint">Configure o ângulo exato de cada compartimento (0–180°). Ao salvar, as posições são enviadas automaticamente ao ESP32.</div>
+    </div>
+
+    <div class="fg">
+      <label class="flbl">Intervalo de atualização</label>
+      <select class="finput" id="cfRefresh">
+        <option value="3000">3 segundos</option>
+        <option value="5000" selected>5 segundos</option>
+        <option value="10000">10 segundos</option>
+        <option value="30000">30 segundos</option>
+      </select>
+    </div>
+
+    <div class="modal-foot">
+      <button class="btn btn-gray" onclick="closeMod()">Cancelar</button>
+      <button class="btn btn-teal" onclick="saveCfg()">💾 Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOASTS -->
+<div class="toasts" id="toasts"></div>
+
+<!-- FOOTER -->
+<footer>
+  Aqua Master v3.0 &nbsp;·&nbsp; Brusque SC &nbsp;·&nbsp;
+  <span id="footerTs">—</span>
+</footer>
+
+<!-- ============================================================
+     JAVASCRIPT
+     ============================================================ -->
+<script>
+'use strict';
+
+// ── CONFIG (carregado do localStorage) ──────────────────────
+function defaultDias(){ return [25, 50, 75, 100, 125, 150, 175]; }
+
+let C = {
+  url:     ls('am_url')     || window.location.origin,
+  phMin:   +ls('am_phMin')  || 6.5,
+  phMax:   +ls('am_phMax')  || 7.5,
+  tMin:    +ls('am_tMin')   || 22,
+  tMax:    +ls('am_tMax')   || 28,
+  refresh: +ls('am_ref')    || 5000,
+  dias:    JSON.parse(ls('am_dias') || 'null') || defaultDias(),
+};
+
+// ── STATE ────────────────────────────────────────────────────
+let data      = null;
+let online    = false;
+let tF = 6, pF = 6;        // filtros de horas dos gráficos
+let ctT = null, ctP = null; // Chart instances
+let theme = ls('am_theme') || 'dark';
+
+// ── INTERACTION GUARD ─────────────────────────────────────────
+// Qualquer clique, toque ou tecla inibe updates visuais por 1.5s.
+// O fetch ainda roda em background — o display congela temporariamente.
+let _lastInteract = 0;
+function isInteracting(){ return Date.now() - _lastInteract < 1500; }
+function _markInteract(){ _lastInteract = Date.now(); }
+
+// ── POLL — controle centralizado de timers ───────────────────
+// _manual: usuário clicou ⏸
+// _modal:  modal de configurações aberto
+// Nenhuma função fetch tem guard interno — a responsabilidade
+// é dos timers: se não estão rodando, não há chamadas.
+const Poll = {
+  _st:     null,   // timer de status
+  _ht:     null,   // timer de histórico
+  _manual: false,  // pausado pelo usuário
+  _modal:  false,  // pausado porque modal abriu
+
+  get paused(){ return this._manual || this._modal; },
+
+  _clear(){
+    clearInterval(this._st); this._st = null;
+    clearInterval(this._ht); this._ht = null;
+  },
+
+  _run(){
+    this._clear();
+    if(this.paused) return;
+    fetchStatus();
+    fetchHistory();
+    this._st = setInterval(fetchStatus,  C.refresh);
+    // Histórico: no mínimo 60s, no máximo 4× o intervalo de status
+    const hi = Math.max(60000, C.refresh * 4);
+    this._ht = setInterval(fetchHistory, hi);
+  },
+
+  // Chamado na inicialização ou após salvar configurações
+  start(){ this._manual = false; this._modal = false; this._run(); },
+
+  // Modal abre → pausa sem alterar flag de pausa manual
+  openModal(){
+    this._modal = true;
+    this._clear();
+    this._ui();
+  },
+
+  // Modal fecha → retoma apenas se não estava pausado manualmente
+  closeModal(){
+    this._modal = false;
+    if(!this._manual) this._run();
+    this._ui();
+  },
+
+  // Botão ⏸/▶ — alterna pausa manual
+  toggle(){
+    this._manual = !this._manual;
+    this._manual ? this._clear() : this._run();
+    this._ui();
+  },
+
+  // Após saveCfg (C.refresh mudou) — reinicia com novo intervalo
+  applyInterval(){ this._run(); },
+
+  _ui(){
+    const btn   = el('pauseBtn');
+    const badge = el('connBadge');
+    const txt   = el('connTxt');
+    if(btn){
+      btn.textContent = this._manual ? '▶' : '⏸';
+      btn.title       = this._manual ? 'Retomar atualização' : 'Pausar atualização';
+    }
+    if(this._manual){
+      if(badge) badge.className = 'conn-badge paused';
+      if(txt)   txt.textContent = 'Pausado';
+    }
+    // Se não manual: setOnline() restaura o badge
+  },
+};
+
+// ── HELPERS ──────────────────────────────────────────────────
+function ls(k){ return localStorage.getItem(k); }
+function lss(k,v){ localStorage.setItem(k, v); }
+function $(s){ return document.querySelector(s); }
+function $$(s){ return document.querySelectorAll(s); }
+function el(id){ return document.getElementById(id); }
+
+// ── THEME ────────────────────────────────────────────────────
+function applyTheme(t){
+  theme = t;
+  document.documentElement.setAttribute('data-theme', t);
+  el('themeBtn').textContent = t === 'dark' ? '🌙' : '☀️';
+  lss('am_theme', t);
+  refreshChartTheme();
+}
+function toggleTheme(){ applyTheme(theme === 'dark' ? 'light' : 'dark'); }
+
+function chartColors(){
+  const g = theme === 'dark';
+  return {
+    grid:  g ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)',
+    ticks: g ? '#6e94ad' : '#527a94',
+    tip:   g ? '#192b3d' : '#ffffff',
+  };
+}
+function refreshChartTheme(){
+  const cc = chartColors();
+  [ctT, ctP].forEach(c => {
+    if(!c) return;
+    c.options.scales.x.grid.color  = cc.grid;
+    c.options.scales.y.grid.color  = cc.grid;
+    c.options.scales.x.ticks.color = cc.ticks;
+    c.options.scales.y.ticks.color = cc.ticks;
+    c.update('none');
+  });
+}
+
+// ── CHARTS INIT ──────────────────────────────────────────────
+function initCharts(){
+  const cc  = chartColors();
+  const opt = (color, yMin, yMax) => ({
+    responsive: true, maintainAspectRatio: false,
+    animation: { duration: 350 },
+    interaction: { mode: 'index', intersect: false },
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: cc.tip, titleColor: cc.ticks,
+        bodyColor: color, borderColor: color,
+        borderWidth: 1, padding: 10, cornerRadius: 8,
+      },
+    },
+    scales: {
+      x: { grid: { color: cc.grid }, ticks: { color: cc.ticks, maxTicksLimit: 7, maxRotation: 0, font: { size: 10 } } },
+      y: { min: yMin, max: yMax, grid: { color: cc.grid }, ticks: { color: cc.ticks, font: { size: 10 } } },
+    },
+  });
+
+  // Temperatura chart
+  const ctxT = el('cTemp').getContext('2d');
+  const gT   = ctxT.createLinearGradient(0,0,0,200);
+  gT.addColorStop(0,'rgba(243,156,18,0.28)');
+  gT.addColorStop(1,'rgba(243,156,18,0)');
+  ctT = new Chart(ctxT, {
+    type: 'line',
+    data: { labels: [], datasets: [{
+      data: [], borderColor: '#f39c12', backgroundColor: gT,
+      borderWidth: 2, pointRadius: 2, pointHoverRadius: 5, tension: 0.4, fill: true,
+    }]},
+    options: opt('#f39c12', 14, 36),
+  });
+
+  // pH chart
+  const ctxP = el('cPH').getContext('2d');
+  const gP   = ctxP.createLinearGradient(0,0,0,200);
+  gP.addColorStop(0,'rgba(0,212,170,0.25)');
+  gP.addColorStop(1,'rgba(0,212,170,0)');
+  ctP = new Chart(ctxP, {
+    type: 'line',
+    data: { labels: [], datasets: [
+      { data: [], borderColor: '#00d4aa', backgroundColor: gP, borderWidth: 2, pointRadius: 2, pointHoverRadius: 5, tension: 0.4, fill: true, label: 'pH' },
+      { data: [], borderColor: 'rgba(224,92,92,0.5)', borderWidth: 1.5, borderDash:[6,4], pointRadius: 0, fill: false, tension: 0, label: 'Mín' },
+      { data: [], borderColor: 'rgba(224,92,92,0.5)', borderWidth: 1.5, borderDash:[6,4], pointRadius: 0, fill: false, tension: 0, label: 'Máx' },
+    ]},
+    options: opt('#00d4aa', 4, 10),
+  });
+}
+
+// ── FETCH STATUS ──────────────────────────────────────────────
+async function fetchStatus(){
+  try{
+    const r = await fetch(`${C.url}/status`, { signal: AbortSignal.timeout(4000) });
+    if(!r.ok) throw new Error();
+    data = await r.json();
+    updateUI(data);
+    setOnline(true);
+  } catch(e){
+    setOnline(false);
+  }
+}
+
+// ── FETCH HISTORY ─────────────────────────────────────────────
+// Calcula step e limite adequados para cada janela de tempo.
+// 1h  → step 1  (todos os pontos, ~720 registros)
+// 6h  → step 5  (um a cada ~25s,  ~900 registros)
+// 24h → step 20 (um a cada ~100s, ~864 registros)
+function historicoParams(h){
+  if(h <= 1)  return { step:  1, limite:  900 };
+  if(h <= 6)  return { step:  5, limite: 1000 };
+  return              { step: 20, limite: 1200 };
+}
+
+async function fetchHistory(){
+  const horasMax = Math.max(tF, pF);
+  const { step, limite } = historicoParams(horasMax);
+  try{
+    const r = await fetch(
+      `${C.url}/historico?limite=${limite}&horas=${horasMax}&step=${step}`,
+      { signal: AbortSignal.timeout(8000) }
+    );
+    if(!r.ok) return;
+    const rows = await r.json();
+    updateCharts(rows);
+  } catch(e){ /* silencioso */ }
+}
+
+// ── UPDATE UI ─────────────────────────────────────────────────
+function fmt(ts){
+  const d = new Date(ts);
+  return d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+}
+
+function updateUI(d){
+  if(isInteracting()) return; // aguarda o usuário terminar de interagir
+  // ── Temperatura ──
+  const tOk = d.temperatura >= C.tMin && d.temperatura <= C.tMax;
+  setText('tvVal', d.temperatura !== null ? d.temperatura.toFixed(1) : '--');
+  setBadge('tvBadge',
+    tOk ? `✓ Normal (${C.tMin}–${C.tMax}°C)` : `⚠ Fora da faixa!`,
+    tOk ? 'var(--accent)' : 'var(--red)');
+
+  // ── pH ──
+  const ph   = d.ph;
+  const phOk = ph >= C.phMin && ph <= C.phMax;
+  const phC  = phOk ? 'var(--accent)' : (ph < C.phMin ? 'var(--blue)' : 'var(--red)');
+  setText('phvVal', ph !== null ? ph.toFixed(2) : '--');
+  el('phvCard').querySelector('span').style.color = phC;
+  el('phRange').textContent = `${C.phMin} – ${C.phMax}`;
+  setBadge('phvBadge',
+    phOk ? '✓ Faixa ideal' : (ph < C.phMin ? '⬇ Ácido' : '⬆ Alcalino'),
+    phC);
+
+  // ── Bomba ──
+  const pOn = d.bomba;
+  el('pumpDot').className = 'pump-dot' + (pOn ? ' on' : '');
+  el('pumpTxt').textContent = pOn ? 'LIGADA' : 'DESLIGADA';
+  el('pumpTxt').style.color = pOn ? 'var(--blue)' : 'var(--text2)';
+  setBadge('pumpBadge', pOn ? '● Funcionando' : '○ Parada',
+    pOn ? 'var(--blue)' : 'var(--text2)');
+
+  // ── Alimentador ──
+  const stMap = {
+    ativo:      { txt: 'Ciclo ativo',  c: 'var(--purple)' },
+    aguardando: { txt: '⟳ Recarregar', c: 'var(--orange)' },
+    movendo:    { txt: '↻ Movendo…',   c: 'var(--accent)' },
+  };
+  const st  = stMap[d.estado_alim] || { txt: '—', c: 'var(--text2)' };
+  el('feedState').textContent = st.txt;
+  el('feedCard').style.color  = st.c;
+
+  // Modo chip bomba/alimentador
+  el('pumpModeChip').textContent = 'Auto';
+  el('pumpModeChip').className   = 'mode-chip';
+  el('feedModeChip').textContent = st.txt;
+  el('feedModeChip').style.borderColor = st.c;
+  el('feedModeChip').style.color = st.c;
+  el('feedModeChip').style.background = 'transparent';
+
+  // Mini days
+  renderMiniDays(d.dia_atual || 1);
+  renderCycle(d);
+
+  // Estatísticas
+  setText('sAlim',   d.alimentacoes || 0);
+  setText('sCiclos', d.ciclos || 0);
+  setText('sDia',    `${d.dia_atual || 1}/7`);
+
+  // ── Servo arc + feeder detail ──
+  updateArc(d.servo_pos || 0);
+  updateFeedStatePanel(d);
+
+  // Alertas
+  const alerts = [];
+  if(!phOk)   alerts.push(`pH ${ph.toFixed(2)} fora da faixa ideal (${C.phMin}–${C.phMax})`);
+  if(!tOk && d.temperatura !== -99) alerts.push(`Temperatura ${d.temperatura.toFixed(1)}°C fora da faixa (${C.tMin}–${C.tMax}°C)`);
+  const bar = el('alertBar');
+  if(alerts.length){
+    bar.classList.remove('hidden');
+    el('alertTxt').textContent = alerts.join('  ·  ');
+  } else {
+    bar.classList.add('hidden');
+  }
+
+  // Timestamp
+  const now = new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  el('lastUpd').textContent   = `Atualizado ${now}`;
+  el('footerTs').textContent  = `Última atualização: ${now}`;
+}
+
+function setText(id, val){
+  const e = el(id);
+  if(!e) return;
+  const s = String(val);
+  if(e.textContent !== s) e.textContent = s;
+}
+
+function setBadge(id, txt, color){
+  const e = el(id);
+  if(!e) return;
+  e.textContent   = txt;
+  e.style.color   = color;
+  e.style.borderColor = color;
+}
+
+function renderMiniDays(dia){
+  for(let i=1; i<=7; i++){
+    const d = el('md' + i);
+    if(!d) continue;
+    d.className = 'mini-d ' + (i < dia ? 'done' : i === dia ? 'current' : '');
+  }
+}
+
+function renderCycle(d){
+  const dia = d.dia_atual || 1;
+  const pct = Math.round(((dia-1)/7)*100);
+  el('cyclePct').textContent  = pct + '%';
+  el('cycleFill').style.width = pct + '%';
+
+  for(let i=1; i<=7; i++){
+    const div = el('dc' + i);
+    if(!div) continue;
+    div.className = 'day-c ' + (i < dia ? 'done' : i === dia ? 'current' : '');
+  }
+}
+
+// ── UPDATE CHARTS ─────────────────────────────────────────────
+function updateCharts(rows){
+  if(!rows || !rows.length) return;
+  if(isInteracting()) return; // aguarda o usuário terminar de interagir
+  const nowMs = Date.now();
+
+  const tRows = rows.filter(r => (nowMs - new Date(r.timestamp).getTime()) <= tF*3600000);
+  const pRows = rows.filter(r => (nowMs - new Date(r.timestamp).getTime()) <= pF*3600000);
+
+  if(ctT){
+    ctT.data.labels            = tRows.map(r => fmt(r.timestamp));
+    ctT.data.datasets[0].data  = tRows.map(r => r.temperatura);
+    ctT.update('none');
+  }
+  if(ctP){
+    ctP.data.labels            = pRows.map(r => fmt(r.timestamp));
+    ctP.data.datasets[0].data  = pRows.map(r => r.ph);
+    ctP.data.datasets[1].data  = pRows.map(() => C.phMin);
+    ctP.data.datasets[2].data  = pRows.map(() => C.phMax);
+    ctP.update('none');
+  }
+}
+
+// ── CHART FILTERS ─────────────────────────────────────────────
+function setF(which, h, btn){
+  if(which === 't') tF = h;
+  else              pF = h;
+  const parent = btn.closest('.filters');
+  parent.querySelectorAll('.filt').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  // Clique explícito: reseta guard de interação para que updateCharts
+  // execute imediatamente (o usuário quer ver os dados agora).
+  _lastInteract = 0;
+  fetchHistory();
+}
+
+// ── SERVO CONTROL ─────────────────────────────────────────────
+// Arc gauge: semicircle path length ≈ π * r = π * 76 ≈ 239 px
+const ARC_LEN = 239;
+
+// Gera os botoes de preset com base em C.dias (posições individuais)
+function renderPresets(){
+  const row = el('presetRow');
+  if(!row) return;
+  let html = `<button class="preset-btn home-btn" onclick="sendServo(0)">⌂ Home (0°)</button>`;
+  C.dias.forEach((g, i) => {
+    html += `<button class="preset-btn" onclick="sendServo(${g})">Dia ${i+1} — ${g}°</button>`;
+  });
+  row.innerHTML = html;
+}
+
+function updateArc(graus){
+  const pct    = Math.min(Math.max(graus, 0), 180) / 180;
+  const offset = ARC_LEN - (pct * ARC_LEN);
+  const fill   = el('arcFill');
+  if(fill) fill.setAttribute('stroke-dashoffset', offset.toFixed(1));
+
+  const degEl = el('arcDeg');
+  if(degEl) degEl.textContent = graus;
+
+  // Day badge — usa as posições individuais de C.dias
+  const badge = el('servoDayBadge');
+  if(badge){
+    if(graus === 0){
+      badge.textContent = 'Home';
+    } else {
+      const diaIdx = C.dias.findIndex(g => Math.abs(g - graus) <= 1);
+      badge.textContent = diaIdx >= 0 ? `Dia ${diaIdx + 1}` : `${graus}°`;
+    }
+  }
+
+  // Highlight matching preset button
+  el('presetRow').querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active-pre'));
+  el('presetRow').querySelectorAll('.preset-btn').forEach(b => {
+    const m = b.textContent.match(/(\d+)°/);
+    if(m && parseInt(m[1]) === graus) b.classList.add('active-pre');
+  });
+
+  // Sync slider (não sobrescreve enquanto o usuário está arrastando)
+  const sldr = el('servoSlider');
+  if(sldr && !sldr.matches(':active')){
+    sldr.value = graus;
+    el('sliderVal').textContent = graus;
+  }
+}
+
+function updateFeedStatePanel(d){
+  const stMap = {
+    ativo:      { icon: '▶️',  title: 'Ciclo ativo',             sub: `Aguardando intervalo para alimentar o Dia ${d.dia_atual || 1}` },
+    aguardando: { icon: '⟳',   title: 'Aguardando recarga',       sub: 'Coloque ração e clique "Iniciar ciclo" para reiniciar' },
+    movendo:    { icon: '↻',   title: 'Servo em movimento…',      sub: `Movendo para ${d.servo_pos || 0}° — aguarde` },
+  };
+  const st = stMap[d.estado_alim] || { icon: '❓', title: 'Estado desconhecido', sub: d.estado_alim || '—' };
+
+  const panel = el('feedStatePanel');
+  const icon  = el('feedStateIcon');
+  const title = el('feedStateTitle');
+  const sub   = el('feedStateSub');
+
+  if(icon)  icon.textContent  = st.icon;
+  if(title){
+    title.textContent = st.title;
+    title.style.color = d.estado_alim === 'aguardando' ? 'var(--orange)'
+                      : d.estado_alim === 'movendo'    ? 'var(--accent)'
+                      : 'var(--purple)';
+  }
+  if(sub)   sub.textContent   = st.sub;
+
+  // Sidebar stats
+  setText('si_dia',    d.dia_atual    || 1);
+  setText('si_alim',   d.alimentacoes || 0);
+  setText('si_ciclos', d.ciclos       || 0);
+}
+
+async function sendServo(graus){
+  graus = Math.min(Math.max(Math.round(graus), 0), 180);
+  await cmd(`servo_${graus}`);
+  // Atualiza UI imediatamente (sem esperar o próximo poll)
+  updateArc(graus);
+  el('manualDeg').value = graus;
+}
+
+function sendManual(){
+  let v = parseInt(el('manualDeg').value, 10);
+  if(isNaN(v)) v = 0;
+  v = Math.min(Math.max(v, 0), 180);
+  el('manualDeg').value = v;
+  sendServo(v);
+}
+
+// Slider live preview — wired up inside the main DOMContentLoaded below
+
+// ── SEND COMMAND ──────────────────────────────────────────────
+function cmdLabel(c){
+  const fixed = {
+    bomba_ligar:     'Ligar bomba',
+    bomba_desligar:  'Desligar bomba',
+    bomba_auto:      'Bomba automática',
+    alimentar_agora: 'Alimentar agora',
+    iniciar_ciclo:   'Iniciar ciclo',
+    ir_home:         'Servo → Home',
+  };
+  if(fixed[c]) return fixed[c];
+  if(c.startsWith('servo_')) return `Servo → ${c.slice(6)}°`;
+  return c;
+}
+
+async function cmd(c){
+  // Tenta POST com JSON primeiro (padrão).
+  // Se CORS bloquear (ex: arquivo local em alguns navegadores),
+  // cai automaticamente para GET com query string como fallback.
+  try{
+    const r = await fetch(`${C.url}/comando`,{
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({comando: c}),
+      signal: AbortSignal.timeout(5000),
+    });
+    const j = await r.json();
+    if(j.status === 'ok'){
+      toast(`✓ ${cmdLabel(c)} — em até 5s`);
+    } else {
+      toast(`Erro: ${j.msg}`, 'err');
+    }
+  } catch(e){
+    // Fallback: GET com query string (evita CORS preflight)
+    try{
+      const r2 = await fetch(`${C.url}/comando?cmd=${encodeURIComponent(c)}`,{
+        signal: AbortSignal.timeout(5000),
+      });
+      const j2 = await r2.json();
+      if(j2.status === 'ok'){
+        toast(`✓ ${cmdLabel(c)} — em até 5s`);
+      } else {
+        toast(`Erro: ${j2.msg}`, 'err');
+      }
+    } catch(e2){
+      toast('Sem conexão com o backend', 'err');
+    }
+  }
+}
+
+// ── ONLINE / OFFLINE ──────────────────────────────────────────
+function setOnline(on){
+  online = on;
+  // Não altera badge se o usuário pausou manualmente
+  if(Poll._manual) return;
+  const b = el('connBadge');
+  const t = el('connTxt');
+  b.className = 'conn-badge ' + (on ? 'online' : 'offline');
+  t.textContent = on ? 'Online' : 'Offline';
+  if(!on) el('lastUpd').textContent = 'Sem conexão';
+}
+
+// ── HELP TOGGLE ───────────────────────────────────────────────
+function toggleHelp(){
+  const btn  = el('helpToggle');
+  const body = el('helpBody');
+  btn.classList.toggle('open');
+  body.classList.toggle('open');
+}
+
+// ── TOAST ─────────────────────────────────────────────────────
+function toast(msg, type=''){
+  const box = el('toasts');
+  const t   = document.createElement('div');
+  t.className = `toast ${type}`;
+  t.textContent = msg;
+  box.appendChild(t);
+  setTimeout(()=>{
+    t.style.animation = 'tout 0.28s cubic-bezier(.4,0,.2,1) forwards';
+    setTimeout(()=> t.remove(), 280);
+  }, 3400);
+}
+
+// ── SETTINGS MODAL ────────────────────────────────────────────
+function renderDiasInputs(){
+  const grid = el('diasInputsGrid');
+  if(!grid) return;
+  grid.innerHTML = C.dias.map((g, i) => `
+    <div style="display:flex;align-items:center;gap:6px;">
+      <span style="font-size:0.7rem;font-weight:700;color:var(--text2);min-width:34px;">Dia ${i+1}</span>
+      <input type="number" class="finput" id="cfDia${i+1}"
+        min="0" max="180" step="1" value="${g}"
+        style="width:72px;text-align:center;padding:7px 8px;">
+      <span style="font-size:0.7rem;color:var(--text3);">°</span>
+    </div>`).join('');
+}
+
+function openSett(){
+  Poll.openModal();          // pausa sem afetar flag de pausa manual
+  el('cfUrl').value     = C.url;
+  el('cfPhMin').value   = C.phMin;
+  el('cfPhMax').value   = C.phMax;
+  el('cfTMin').value    = C.tMin;
+  el('cfTMax').value    = C.tMax;
+  el('cfRefresh').value = C.refresh;
+  renderDiasInputs();
+  el('settModal').classList.add('open');
+}
+function closeMod(){
+  el('settModal').classList.remove('open');
+  Poll.closeModal();         // retoma só se não estava pausado manualmente
+}
+function saveCfg(){
+  C.url     = el('cfUrl').value.trim().replace(/\/$/,'');
+  C.phMin   = +el('cfPhMin').value  || 6.5;
+  C.phMax   = +el('cfPhMax').value  || 7.5;
+  C.tMin    = +el('cfTMin').value   || 22;
+  C.tMax    = +el('cfTMax').value   || 28;
+  C.refresh = +el('cfRefresh').value || 5000;
+
+  // Lê os 7 inputs individuais
+  C.dias = C.dias.map((def, i) => {
+    const v = parseInt(el(`cfDia${i+1}`)?.value ?? def, 10);
+    return isNaN(v) ? def : Math.min(180, Math.max(0, v));
+  });
+
+  lss('am_url',   C.url);
+  lss('am_phMin', C.phMin);
+  lss('am_phMax', C.phMax);
+  lss('am_tMin',  C.tMin);
+  lss('am_tMax',  C.tMax);
+  lss('am_ref',   C.refresh);
+  lss('am_dias',  JSON.stringify(C.dias));
+
+  closeMod();          // → Poll.closeModal() → retoma se não estava pausado
+  renderPresets();
+
+  // Envia as 7 posições ao ESP32 em um único comando
+  const posCmd = 'set_posicoes_' + C.dias.join('_');
+  cmd(posCmd).then(() => toast('✓ Posições enviadas ao ESP32!'));
+
+  Poll.applyInterval(); // aplica novo C.refresh sem resetar flag de pausa
+  toast('✓ Configurações salvas!');
+}
+
+// ── SCHEDULE ──────────────────────────────────────────────────
+function getScheds(){ return JSON.parse(ls('am_scheds') || '[]'); }
+function putScheds(a){ lss('am_scheds', JSON.stringify(a)); }
+
+function renderScheds(){
+  const list = getScheds();
+  const c = el('schedList');
+  if(!list.length){
+    c.innerHTML = '<div class="sched-empty">Nenhum horário programado</div>';
+    return;
+  }
+  c.innerHTML = list.map((s,i) => `
+    <div class="sched-item">
+      <div>
+        <div class="sched-time">${s.time}</div>
+        <div class="sched-desc">${s.label || 'Alimentação programada'}</div>
+      </div>
+      <div class="sched-right">
+        <button class="tog ${s.on?'on':''}" onclick="togSched(${i})" title="${s.on?'Ativo':'Pausado'}"></button>
+        <button class="btn btn-gray" style="padding:6px 11px;font-size:0.7rem" onclick="delSched(${i})">✕</button>
+      </div>
+    </div>`).join('');
+}
+
+function addSched(){
+  const t = el('sTime').value;
+  const l = el('sLabel').value.trim();
+  if(!t) return;
+  const list = getScheds();
+  list.push({ time: t, label: l, on: true, lastFired: null });
+  list.sort((a,b) => a.time.localeCompare(b.time));
+  putScheds(list);
+  renderScheds();
+  el('sLabel').value = '';
+  toast(`✓ Horário ${t} adicionado`);
+}
+function delSched(i){
+  const list = getScheds();
+  list.splice(i,1);
+  putScheds(list);
+  renderScheds();
+}
+function togSched(i){
+  const list = getScheds();
+  list[i].on = !list[i].on;
+  putScheds(list);
+  renderScheds();
+}
+function checkScheds(){
+  const now   = new Date();
+  const hhmm  = now.toTimeString().substring(0,5);
+  const today = now.toDateString();
+  const list  = getScheds();
+  let changed = false;
+  list.forEach(s => {
+    if(s.on && s.time === hhmm && s.lastFired !== today){
+      s.lastFired = today;
+      changed = true;
+      cmd('alimentar_agora');
+      toast(`🍽 Agenda ${s.time}: alimentação disparada!`);
+    }
+  });
+  if(changed) putScheds(list);
+}
+
+// ── POLLING — wrappers públicos ───────────────────────────────
+function togglePause(){ Poll.toggle(); }
+function startPoll(){ Poll.start(); }
+
+// ── INIT ──────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  applyTheme(theme);
+
+  el('themeBtn').addEventListener('click', toggleTheme);
+  el('settBtn').addEventListener('click', openSett);
+
+  // Slider live preview
+  const sldr = el('servoSlider');
+  if(sldr){
+    sldr.addEventListener('input', () => {
+      el('sliderVal').textContent = sldr.value;
+    });
+  }
+
+  // Registra interação do usuário — inibe updates visuais por 1.5s
+  // após qualquer clique, toque ou tecla (fetch continua em background).
+  ['mousedown','pointerdown','touchstart','keydown'].forEach(ev =>
+    document.addEventListener(ev, _markInteract, { passive: true })
+  );
+
+  renderPresets();   // gera botões com posições salvas
+  initCharts();
+  renderScheds();
+  Poll.start();      // inicia polling com estado limpo
+
+  // Agenda verificada a cada 10 segundos
+  checkScheds();
+  setInterval(checkScheds, 10000);
+});
+</script>
+
+</body>
+</html>
