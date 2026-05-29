@@ -779,7 +779,7 @@ footer {
       <div class="card-val" id="feedCard" style="color: var(--purple); font-size: 1.6rem; padding-top: 5px;">
         <span id="feedState">—</span>
       </div>
-      <div class="card-sub">Ciclo de 7 dias</div>
+      <div class="card-sub">Ciclo de 7 dias &nbsp;·&nbsp; <span id="feedSchedule" style="color:var(--accent);font-size:0.82rem;">⏰ 08:00h</span></div>
       <div class="mini-days" id="miniDays">
         <div class="mini-d" id="md1">1</div>
         <div class="mini-d" id="md2">2</div>
@@ -1653,6 +1653,13 @@ function setF(which, h, btn){
 const ARC_LEN = 239;
 
 // Gera os botoes de preset com base em C.dias (posições individuais)
+function updateFeedScheduleLabel(){
+  const hh = String(C.horaAlim).padStart(2,'0');
+  const mm = String(C.minAlim).padStart(2,'0');
+  const lbl = el('feedSchedule');
+  if(lbl) lbl.textContent = `⏰ ${hh}:${mm}h`;
+}
+
 function renderPresets(){
   const row = el('presetRow');
   if(!row) return;
@@ -1897,6 +1904,7 @@ function saveCfg(){
   cmd(`set_horario_${hh}_${mm}`).then(() => toast(`✓ Horário ${hh}:${mm} enviado ao ESP32!`));
 
   Poll.applyInterval(); // aplica novo C.refresh sem resetar flag de pausa
+  updateFeedScheduleLabel();
   toast('✓ Configurações salvas!');
 }
 
@@ -1972,6 +1980,7 @@ function startPoll(){ Poll.start(); }
 // ── INIT ──────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   applyTheme(theme);
+  updateFeedScheduleLabel();
 
   el('themeBtn').addEventListener('click', toggleTheme);
   el('settBtn').addEventListener('click', openSett);
