@@ -352,13 +352,17 @@ def ping():
 
 
 # ============================================================
+# INICIALIZACAO (executado tanto pelo gunicorn quanto direto)
+# ============================================================
+init_db()
+
+# ============================================================
 # MAIN
 # ============================================================
 if __name__ == "__main__":
     print("=" * 50)
     print("  AQUA MASTER - Backend Python")
     print("=" * 50)
-    init_db()
     print()
     print("[INFO] Endpoints:")
     print("  POST /dados        ← ESP32 envia dados")
